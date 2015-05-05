@@ -10,7 +10,7 @@
     <body>
         <c:choose>
             <c:when test="${greeting ne null}">
-                <span>${greeting.name}&nbsp;<strong>#${greeting.id}</strong></span>
+                <span>${greeting.name}&nbsp;(${greeting.value})&nbsp;<strong>#${greeting.id}</strong></span>
             </c:when>
             <c:otherwise>
                 <strong>Nothing to show</strong>

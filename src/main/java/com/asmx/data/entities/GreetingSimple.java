@@ -7,6 +7,7 @@ package com.asmx.data.entities;
 public class GreetingSimple implements Greeting {
     private int id;
     private String name;
+    private int value;
 
     @Override
     public int getId() {
@@ -26,5 +27,15 @@ public class GreetingSimple implements Greeting {
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int getValue() {
+        return value;
+    }
+
+    @Override
+    public void setValue(int value) {
+        this.value = value;
     }
 }

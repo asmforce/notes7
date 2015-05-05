@@ -2,7 +2,6 @@ package com.asmx.controllers;
 
 import com.asmx.data.daos.GreetingDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,8 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class GreetingController {
     @Autowired
-    @Qualifier("greetingDao")
-    protected GreetingDao greetingDao;
+    private GreetingDao greetingDao;
 
     @RequestMapping("/greeting/{id}")
     public String greeting(@PathVariable("id") int id, Model model) {
