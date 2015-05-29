@@ -1,8 +1,7 @@
 package com.asmx.data.daos;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 
@@ -10,9 +9,8 @@ import javax.sql.DataSource;
  * User: asmforce
  * Timestamp: 05.05.15 23:08.
  */
-@Component
+@SuppressWarnings("unused")
 public class BaseDao {
-    @Autowired
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
 
@@ -25,5 +23,10 @@ public class BaseDao {
             jdbcTemplate = new JdbcTemplate(dataSource);
         }
         return jdbcTemplate;
+    }
+
+    @Required
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }

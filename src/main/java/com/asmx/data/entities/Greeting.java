@@ -1,9 +1,12 @@
 package com.asmx.data.entities;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 /**
  * User: asmforce
  * Timestamp: 04.05.15 22:18.
  */
+@JsonDeserialize(as = GreetingSimple.class)
 public interface Greeting {
     int getId();
 

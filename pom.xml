@@ -13,7 +13,8 @@
         <project.deployPath>${project.name}spring</project.deployPath>
         <start-class>com.asmx.Application</start-class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.springframework-version>4.0.2.RELEASE</org.springframework-version>
+        <org.springframework-version>4.1.6.RELEASE</org.springframework-version>
+        <tiles.version>3.0.5</tiles.version>
     </properties>
 
     <parent>
@@ -38,6 +39,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Apache Tiles -->
+        <dependency>
+            <groupId>org.apache.tiles</groupId>
+            <artifactId>tiles-extras</artifactId>
+            <version>${tiles.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jsp-api</artifactId>
@@ -51,11 +59,6 @@
             <version>1.2</version>
             <scope>provided</scope>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-thymeleaf</artifactId>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.commons</groupId>

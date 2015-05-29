@@ -3,14 +3,13 @@ package com.asmx.data.daos;
 import com.asmx.data.entities.Greeting;
 import com.asmx.data.entities.GreetingFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.stereotype.Component;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -19,7 +18,6 @@ import java.util.List;
  * User: asmforce
  * Timestamp: 04.05.15 23:00.
  */
-@Component
 public class GreetingDaoImpl extends BaseDao implements GreetingDao {
     protected final String TABLE_NAME = "greetings";
     protected final String ID_COLUMN = "id";
@@ -55,21 +53,32 @@ public class GreetingDaoImpl extends BaseDao implements GreetingDao {
 
         JdbcTemplate template = getJdbcTemplate();
         if (greeting.getId() > 0) {
-            return template.update("UPDATE " + TABLE_NAME + " SET name = ?, value = ? WHERE id = ?", greeting.getName(), greeting.getValue(), greeting.getId()) > 0;
+            return template.update("UPDATE " + TABLE_NAME + " SET text = ?, value = ? WHERE id = ?", greeting.getName(), greeting.getValue(), greeting.getId()) > 0;
         } else {
-            PreparedStatementCreatorFactory statementCreatorFactory = new PreparedStatementCreatorFactory("INSERT INTO " + TABLE_NAME + " (text, value) VALUES (?, ?)");
-            PreparedStatementCreator statementCreator = statementCreatorFactory.newPreparedStatementCreator(new Object[]{
-                    greeting.getName(), greeting.getValue()
-            });
-            GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-            if (template.update(statementCreator, generatedKeyHolder) > 0) {
-                Number newId = generatedKeyHolder.getKey();
+            GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+            int rows = template.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                        "INSERT INTO " + TABLE_NAME + " (text, value) VALUES (?, ?)",
+                        new String[] {ID_COLUMN}
+                );
+                ps.setString(1, greeting.getName());
+                ps.setInt(2, greeting.getValue());
+                return ps;
+            }, keyHolder);
+
+            if (rows > 0) {
+                Number newId = keyHolder.getKey();
                 greeting.setId(newId.intValue());
                 return true;
             } else {
                 return false;
             }
         }
+    }
+
+    @Required
+    public void setGreetingFactory(GreetingFactory greetingFactory) {
+        this.greetingFactory = greetingFactory;
     }
 
     protected class GreetingMapper implements RowMapper<Greeting> {
