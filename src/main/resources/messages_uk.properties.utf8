@@ -1,0 +1,25 @@
+appname =Notes7
+notes =Замітки
+
+error =Помилка
+error.unknown =Сталася невідома помилка
+
+form.required =Це поле є обов’язковим
+
+sign.sign_in =Вхід
+sign.sign_out =Вихід
+sign.resign =Ви вже увійшли як <b>{0}</b>
+sign.username =Прізвисько
+sign.username.placeholder =Введіть своє прізвисько
+sign.password =Пароль
+sign.password.placeholder =Введіть свій пароль
+sign.username.missing =Введіть прізвисько, це поле є обов’язковим
+sign.password.missing =Введіть пароль, це поле є обов’язковим
+sign.unauthorized.title =Не авторизовано
+sign.unauthorized =Некоректне прізвисько чи пароль
+
+import.button=Імпортувати
+import.success =Успішно імпортовано
+import.invalid_form =Некоректні дані відправлено
+import.invalid_json =Некоректний формат json
+import.invalid_structure =Некоректна структура даних

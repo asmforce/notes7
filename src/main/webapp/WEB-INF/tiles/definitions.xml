@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+    <definition name="base" template="/WEB-INF/tiles/templates/base.jsp">
+        <put-attribute name="head" value="/WEB-INF/tiles/templates/head.jsp"/>
+    </definition>
+
+    <definition name="base-ajax" template="/WEB-INF/tiles/templates/ajax.jsp"/>
+</tiles-definitions>
