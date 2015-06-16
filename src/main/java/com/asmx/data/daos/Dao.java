@@ -8,9 +8,11 @@ import javax.sql.DataSource;
 /**
  * User: asmforce
  * Timestamp: 05.05.15 23:08.
- */
+**/
 @SuppressWarnings("unused")
-public class BaseDao {
+public class Dao {
+    public static final int GENERATE_ID = 0;
+
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
 

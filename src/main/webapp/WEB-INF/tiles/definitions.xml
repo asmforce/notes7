@@ -8,4 +8,8 @@
     </definition>
 
     <definition name="base-ajax" template="/WEB-INF/tiles/templates/ajax.jsp"/>
+
+    <definition name="centered-box" template="/WEB-INF/tiles/templates/centered-box.jsp">
+        <put-attribute name="head" value="/WEB-INF/tiles/templates/head.jsp"/>
+    </definition>
 </tiles-definitions>

@@ -10,10 +10,14 @@
     <context:property-placeholder location="classpath:application.properties"/>
 
     <context:component-scan base-package="com.asmx.controllers"/>
+    <context:component-scan base-package="com.asmx.services"/>
     <context:component-scan base-package="com.asmx.data.daos"/>
     <context:component-scan base-package="com.asmx.data.entities"/>
 
     <mvc:annotation-driven/>
+
+    <!-- Assets -->
+    <mvc:resources mapping="/assets/**" location="/WEB-INF/assets/"/>
 
     <!-- I18n -->
     <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
@@ -45,6 +49,12 @@
         <property name="order" value="#{tilesViewResolver.order + 1}"/>
     </bean>
 
+    <bean name="userFactory" class="com.asmx.data.entities.UserSimpleFactory"/>
+
+    <bean name="usersDao" class="com.asmx.data.daos.UsersDaoSimple">
+        <property name="userFactory" ref="userFactory"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
     <bean name="greetingFactory" class="com.asmx.data.entities.GreetingSimpleFactory"/>
 

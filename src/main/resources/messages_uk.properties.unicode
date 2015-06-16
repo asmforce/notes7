@@ -1,10 +1,11 @@
 appname =Notes7
-notes =Замітки
+notes =Нотатки
 
 error =Помилка
 error.unknown =Сталася невідома помилка
 
 form.required =Це поле є обов’язковим
+form.invalid =Дані запиту пошкоджено чи підроблено
 
 sign.sign_in =Вхід
 sign.sign_out =Вихід

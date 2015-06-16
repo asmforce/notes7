@@ -18,7 +18,7 @@ import java.util.List;
  * User: asmforce
  * Timestamp: 04.05.15 23:00.
  */
-public class GreetingDaoImpl extends BaseDao implements GreetingDao {
+public class GreetingDaoImpl extends Dao implements GreetingDao {
     protected final String TABLE_NAME = "greetings";
     protected final String ID_COLUMN = "id";
     protected final String VALUE_COLUMN = "value";

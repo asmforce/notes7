@@ -1,0 +1,41 @@
+.anim-blinking {
+    -webkit-animation: blinking 2s infinite ease;
+    animation: blinking 2s infinite ease;
+}
+@-webkit-keyframes blinking {
+    0%, 50%, 100% {
+        color: black;
+    }
+    25%, 75% {
+        color: yellow;
+    }
+}
+@keyframes blinking {
+    0%, 50%, 100% {
+        color: black;
+    }
+    25%, 75% {
+        color: yellow;
+    }
+}
+
+.anim-spinning {
+    -webkit-animation: spinning 1000ms infinite linear;
+    animation: spinning 1000ms infinite linear;
+}
+@-webkit-keyframes spinning {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(359deg);
+    }
+}
+@keyframes spinning {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(359deg);
+    }
+}

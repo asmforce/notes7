@@ -3,6 +3,14 @@
 <!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
 
 <tiles-definitions>
+    <definition name="error" extends="centered-box">
+        <put-attribute name="page" value="/WEB-INF/views/error.jsp"/>
+    </definition>
+
+    <definition name="sign" extends="centered-box">
+        <put-attribute name="page" value="/WEB-INF/views/sign.jsp"/>
+    </definition>
+
     <definition name="greeting" extends="base">
         <put-attribute name="page" value="/WEB-INF/views/greeting.jsp"/>
     </definition>
