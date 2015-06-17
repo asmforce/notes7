@@ -89,6 +89,26 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>native2ascii-maven-plugin</artifactId>
+                <version>1.0-beta-1</version>
+                <executions>
+                    <execution>
+                        <id>native2ascii-utf8-resources</id>
+                        <goals>
+                            <goal>native2ascii</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>*.properties</include>
+                            </includes>
+                            <encoding>UTF8</encoding>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
