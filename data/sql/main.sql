@@ -104,6 +104,7 @@ CREATE TABLE note_attachments (
   note_id INTEGER NOT NULL REFERENCES notes(id),
   text TEXT NOT NULL,
   comment TEXT NULL,
+  time TIMESTAMPTZ NULL,
   PRIMARY KEY (id)
 );
 
