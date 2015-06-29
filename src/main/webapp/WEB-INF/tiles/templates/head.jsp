@@ -9,6 +9,8 @@
 <script src="<c:url value="/assets/nprogress.js"/>"></script>
 <link rel="stylesheet" href="<c:url value="/assets/nprogress.css"/>">
 
+<link rel="shortcut icon" href="<c:url value="/assets/favicon.png"/>">
+
 <c:choose>
     <c:when test="${not empty title and not empty subtitle}">
         <title>${subtitle}&nbsp;&#x2014;&nbsp;${title}</title>
