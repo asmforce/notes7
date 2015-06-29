@@ -1,4 +1,4 @@
-<%@ page import="com.asmx.controllers.data.GenericResponse" %>
+<%@ page import="com.asmx.controllers.data.entities.GenericResponse" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>

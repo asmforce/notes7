@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
+import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * User: asmforce
@@ -25,6 +27,14 @@ public class Dao {
             jdbcTemplate = new JdbcTemplate(dataSource);
         }
         return jdbcTemplate;
+    }
+
+    protected Timestamp asTimestamp(Date date) {
+        return new Timestamp(date.getTime());
+    }
+
+    protected Date asDate(Timestamp timestamp) {
+        return new Date(timestamp.getTime());
     }
 
     @Required

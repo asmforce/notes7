@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -24,7 +25,7 @@ public class UsersDaoSimple extends Dao implements UsersDao {
     private static final Logger logger = Logger.getLogger(UsersDaoSimple.class);
 
     private UserFactory userFactory;
-    private UsersMapper usersMapper = new UsersMapper();
+    private UserMapper userMapper = new UserMapper();
 
     @Override
     public User getUser(int id) {
@@ -32,21 +33,21 @@ public class UsersDaoSimple extends Dao implements UsersDao {
 
         JdbcTemplate template = getJdbcTemplate();
         try {
-            List<User> users = template.query("SELECT id, name, key, language, timezone FROM users WHERE id = ?", usersMapper, id);
+            List<User> users = template.query("SELECT id, name, key, language, timezone FROM users WHERE id = ?", userMapper, id);
             if (CollectionUtils.isEmpty(users)) {
-                logger.debug("User #" + id + " not exists");
+                logger.debug("A user #" + id + " not exists");
+                return null;
             } else {
                 if (users.size() == 1) {
                     return users.get(0);
                 } else {
-                    logger.error("User #" + id + " duplicated " + users.size() + " time(s)");
+                    throw new DataIntegrityViolationException("A user #" + id + " duplicated " + users.size() + " time(s)");
                 }
             }
         } catch (DataAccessException e) {
             logger.error("Unable to get a user #" + id, e);
             throw e;
         }
-        return null;
     }
 
     @Override
@@ -55,21 +56,21 @@ public class UsersDaoSimple extends Dao implements UsersDao {
 
         JdbcTemplate template = getJdbcTemplate();
         try {
-            List<User> users = template.query("SELECT id, name, key, language, timezone FROM users WHERE name = ?", usersMapper, name);
+            List<User> users = template.query("SELECT id, name, key, language, timezone FROM users WHERE name = ?", userMapper, name);
             if (CollectionUtils.isEmpty(users)) {
-                logger.debug("User `" + name + "` not exists");
+                logger.debug("A user `" + name + "` not exists");
+                return null;
             } else {
                 if (users.size() == 1) {
                     return users.get(0);
                 } else {
-                    logger.error("User `" + name + "` duplicated " + users.size() + " time(s)");
+                    throw new DataIntegrityViolationException("A user `" + name + "` duplicated " + users.size() + " time(s)");
                 }
             }
         } catch (DataAccessException e) {
             logger.error("Unable to get a user `" + name + "`", e);
             throw e;
         }
-        return null;
     }
 
     @Override
@@ -121,7 +122,7 @@ public class UsersDaoSimple extends Dao implements UsersDao {
         this.userFactory = userFactory;
     }
 
-    protected class UsersMapper implements RowMapper<User> {
+    protected class UserMapper implements RowMapper<User> {
         @Override
         public User mapRow(ResultSet row, int index) throws SQLException {
             User user = userFactory.create();

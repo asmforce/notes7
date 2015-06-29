@@ -11,11 +11,11 @@
         <put-attribute name="page" value="/WEB-INF/views/sign.jsp"/>
     </definition>
 
-    <definition name="greeting" extends="base">
-        <put-attribute name="page" value="/WEB-INF/views/greeting.jsp"/>
+    <definition name="spaces" extends="base">
+        <put-attribute name="page" value="/WEB-INF/views/spaces.jsp"/>
     </definition>
 
-    <definition name="greetings" extends="base">
-        <put-attribute name="page" value="/WEB-INF/views/greetings.jsp"/>
+    <definition name="space" extends="base">
+        <put-attribute name="page" value="/WEB-INF/views/space.jsp"/>
     </definition>
 </tiles-definitions>

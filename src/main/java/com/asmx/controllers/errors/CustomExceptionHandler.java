@@ -26,4 +26,10 @@ public class CustomExceptionHandler {
         logger.error("Database error", e);
         return "forward:/" + HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    public String onNotFoundException(NotFoundException e) {
+        logger.error("Request leads to nowhere", e);
+        return "forward:/" + HttpServletResponse.SC_NOT_FOUND;
+    }
 }

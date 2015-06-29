@@ -1,18 +1,17 @@
 package com.asmx.controllers;
 
 import com.asmx.Constants;
-import com.asmx.Utils;
-import com.asmx.controllers.data.GenericResponse;
+import com.asmx.controllers.data.entities.GenericResponse;
 import com.asmx.data.entities.User;
 import com.asmx.services.UsersService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
@@ -28,9 +27,8 @@ public class UsersController {
     private UsersService usersService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public String sign(HttpSession session, Model model) {
-        model.addAttribute("user", Utils.getAuthorizedUser(session));
-        return "sign";
+    public ModelAndView sign(User user) {
+        return new ModelAndView("sign", "user", user);
     }
 
     @RequestMapping(method = RequestMethod.POST, headers = Constants.AJAX_HEADER)
@@ -48,7 +46,7 @@ public class UsersController {
             } else {
                 response.setStatusCode(GenericResponse.STATUS_SUCCESS);
                 response.setUsername(user.getName());
-                response.setRedirection("/greetings");
+                response.setRedirection("/spaces");
             }
         } else {
             response.setStatusCode(GenericResponse.STATUS_INVALID_FORM);

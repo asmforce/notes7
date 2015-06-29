@@ -1,4 +1,6 @@
-package com.asmx.controllers.data;
+package com.asmx.controllers.data.entities;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
@@ -6,7 +8,7 @@ import java.util.List;
  * User: asmforce
  * Timestamp: 08.06.15 0:41.
 **/
-@SuppressWarnings("unused")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GenericResponse {
     public static final int STATUS_SUCCESS = 0;
     public static final int STATUS_UNEXPECTED = 1;
@@ -18,6 +20,7 @@ public class GenericResponse {
     private List<String> messages;
     private String redirection;
 
+    @SuppressWarnings("unused")
     public Integer getStatusCode() {
         return statusCode;
     }
@@ -26,6 +29,7 @@ public class GenericResponse {
         this.statusCode = statusCode;
     }
 
+    @SuppressWarnings("unused")
     public List<String> getMessages() {
         return messages;
     }
@@ -34,11 +38,12 @@ public class GenericResponse {
         this.messages = messages;
     }
 
-    public void setRedirection(String redirection) {
-        this.redirection = redirection;
-    }
-
+    @SuppressWarnings("unused")
     public String getRedirection() {
         return redirection;
+    }
+
+    public void setRedirection(String redirection) {
+        this.redirection = redirection;
     }
 }
