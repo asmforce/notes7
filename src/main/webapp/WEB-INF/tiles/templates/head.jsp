@@ -6,8 +6,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.6/semantic.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.6/semantic.js"></script>
 
-<script src="<c:url value="/assets/nprogress.js"/>"></script>
-<link rel="stylesheet" href="<c:url value="/assets/nprogress.css"/>">
+<script src="<c:url value="/assets/vendor/nprogress.js"/>"></script>
+<link rel="stylesheet" href="<c:url value="/assets/vendor/nprogress.css"/>">
+
+<script src="<c:url value="/assets/vendor/jquery.jqote2.js"/>"></script>
 
 <link rel="shortcut icon" href="<c:url value="/assets/favicon.png"/>">
 

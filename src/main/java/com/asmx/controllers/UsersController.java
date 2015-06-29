@@ -2,10 +2,13 @@ package com.asmx.controllers;
 
 import com.asmx.Constants;
 import com.asmx.controllers.data.entities.GenericResponse;
+import com.asmx.controllers.data.entities.Message;
 import com.asmx.data.entities.User;
 import com.asmx.services.UsersService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
-import java.util.Collections;
+import java.util.Locale;
 
 /**
  * User: asmforce
@@ -22,9 +25,10 @@ import java.util.Collections;
 **/
 @Controller
 @RequestMapping("/sign")
-public class UsersController {
+public class UsersController implements MessageSourceAware {
     @Autowired
     private UsersService usersService;
+    private MessageSource messageSource;
 
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView sign(User user) {
@@ -33,7 +37,7 @@ public class UsersController {
 
     @RequestMapping(method = RequestMethod.POST, headers = Constants.AJAX_HEADER)
     @ResponseBody
-    public Response signInAjax(HttpSession session, @ModelAttribute SignInForm signInForm) {
+    public Response signInAjax(HttpSession session, @ModelAttribute SignInForm signInForm, Locale locale) {
         String name = StringUtils.trim(signInForm.getUsername());
         String password = signInForm.getPassword();
 
@@ -42,7 +46,12 @@ public class UsersController {
             User user = signIn(session, name, password);
             if (user == null) {
                 response.setStatusCode(GenericResponse.STATUS_UNAUTHORISED);
-                response.setMessages(Collections.singletonList("sign.unauthorized"));
+                response.addMessage(new Message(
+                        messageSource.getMessage("sign.unauthorized", null, locale),
+                        messageSource.getMessage("sign.unauthorized.title", null, locale),
+                        Message.CLASS_ERROR,
+                        "unauthorized"
+                ));
             } else {
                 response.setStatusCode(GenericResponse.STATUS_SUCCESS);
                 response.setUsername(user.getName());
@@ -50,7 +59,12 @@ public class UsersController {
             }
         } else {
             response.setStatusCode(GenericResponse.STATUS_INVALID_FORM);
-            response.setMessages(Collections.singletonList("form.invalid"));
+            response.addMessage(new Message(
+                    messageSource.getMessage("form.invalid", null, locale),
+                    messageSource.getMessage("error", null, locale),
+                    Message.CLASS_ERROR,
+                    "invalid"
+            ));
         }
         return response;
     }
@@ -59,6 +73,11 @@ public class UsersController {
         User user = usersService.getAuthorizedUser(name, password);
         session.setAttribute(Constants.AUTHORIZED_USER, user);
         return user;
+    }
+
+    @Override
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
     }
 
     @SuppressWarnings("unused")

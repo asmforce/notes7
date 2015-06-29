@@ -39,3 +39,25 @@
         transform: rotate(359deg);
     }
 }
+
+
+body > div.messages-wrapper {
+    width: 30%;
+    height: 100%;
+    padding: 15px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.messages-wrapper > .message {
+    margin: 0 0 15px 0;
+}
+
+.careless {
+    opacity: 0.4;
+}
+
+.careless:hover {
+    opacity: 1;
+}
