@@ -17,6 +17,12 @@
     </servlet-mapping>
 
     <session-config>
+        <!-- Session itself expires in one day -->
+        <session-timeout>86400</session-timeout>
+        <cookie-config>
+            <!-- Session cookie expires when browser's closed -->
+            <max-age>-1</max-age>
+        </cookie-config>
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 
