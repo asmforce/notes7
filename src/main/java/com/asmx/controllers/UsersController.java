@@ -60,10 +60,10 @@ public class UsersController implements MessageSourceAware {
         } else {
             response.setStatusCode(GenericResponse.STATUS_INVALID_FORM);
             response.addMessage(new Message(
-                    messageSource.getMessage("form.invalid", null, locale),
+                    messageSource.getMessage("error.form.invalid", null, locale),
                     messageSource.getMessage("error", null, locale),
                     Message.CLASS_ERROR,
-                    "invalid"
+                    "forged"
             ));
         }
         return response;

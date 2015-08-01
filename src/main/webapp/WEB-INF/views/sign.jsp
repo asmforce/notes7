@@ -13,6 +13,12 @@
 <c:set var="CLASS_WARNING" value="<%= Message.CLASS_WARNING %>"/>
 <c:set var="CLASS_ERROR" value="<%= Message.CLASS_ERROR %>"/>
 
+<c:set var="STATUS_AJAX_ERROR" value="error"/>
+<c:set var="STATUS_AJAX_NO_CONTENT" value="nocontent"/>
+<c:set var="STATUS_AJAX_PARSER_ERROR" value="parsererror"/>
+<c:set var="STATUS_AJAX_TIMEOUT" value="timeout"/>
+<c:set var="STATUS_AJAX_ABORT" value="abort"/>
+
 <div class="ui one column stackable center aligned page grid">
     <div class="column six wide left aligned">
         <form:form id="signForm" action="sign" method="POST">
@@ -60,10 +66,13 @@
 
 <script type="text/javascript">
     (function () {
-        var UNKNOWN_ERROR = {
+        var CLIENT_SERVER_ERROR_ID = 'client-server';
+
+        var DATA_PROCESSING_ERROR = {
             title: '<spring:message javaScriptEscape="true" code="error"/>',
-            message: '<spring:message javaScriptEscape="true" code="error.unknown"/>',
-            classes: '${CLASS_ERROR}'
+            message: '<spring:message javaScriptEscape="true" code="error.data"/>',
+            classes: '${CLASS_ERROR}',
+            id: CLIENT_SERVER_ERROR_ID
         };
 
         $('#signForm').form({
@@ -71,14 +80,14 @@
                 identifier: 'username',
                 rules: [{
                     type: 'empty',
-                    prompt: '<spring:message javaScriptEscape="true" code="sign.username.missing"/>'
+                    prompt: '<spring:message javaScriptEscape="true" code="error.form.field_required"/>'
                 }]
             },
             password: {
                 identifier: 'password',
                 rules: [{
                     type: 'empty',
-                    prompt: '<spring:message javaScriptEscape="true" code="sign.password.missing"/>'
+                    prompt: '<spring:message javaScriptEscape="true" code="error.form.field_required"/>'
                 }]
             }
         }, {
@@ -101,7 +110,7 @@
                 });
 
                 $.ajax({
-                    url: '<spring:url value="/sign"/>',
+                    url: '<spring:url javaScriptEscape="true" value="/sign"/>',
                     type: 'POST',
                     dataType: 'json',
                     data: requestData,
@@ -130,7 +139,7 @@
                         if (data) {
                             switch (data.statusCode) {
                                 case ${STATUS_SUCCESS}:
-                                    var redirection = '<spring:url value="/"/>' + data.redirection;
+                                    var redirection = '<spring:url javaScriptEscape="true" value="/"/>' + data.redirection;
                                     location.href = redirection.replace("//", "/");
                                     break;
 
@@ -144,16 +153,43 @@
                                     if (data.messages) {
                                         ASMX.Messages.showAll(data.messages);
                                     } else {
-                                        ASMX.Messages.show(UNKNOWN_ERROR);
+                                        ASMX.Messages.show(DATA_PROCESSING_ERROR);
                                     }
                                     break;
                             }
                         } else {
-                            ASMX.Messages.show(UNKNOWN_ERROR);
+                            ASMX.Messages.show(DATA_PROCESSING_ERROR);
                         }
                     },
-                    error: function() {
-                        ASMX.Messages.show(UNKNOWN_ERROR);
+                    error: function($xhr, textStatus, errorThrown) {
+                        var errorDetailsRequired = false;
+                        var msg = {
+                            title: '<spring:message javaScriptEscape="true" code="error"/>',
+                            classes: '${CLASS_ERROR}',
+                            id: CLIENT_SERVER_ERROR_ID
+                        };
+
+                        switch (textStatus) {
+                            case '${STATUS_AJAX_ERROR}':
+                            case '${STATUS_AJAX_TIMEOUT}':
+                            case '${STATUS_AJAX_ABORT}':
+                                msg.message = '<spring:message javaScriptEscape="true" code="error.network"/>';
+                                errorDetailsRequired = true;
+                                break;
+
+                            case '${STATUS_AJAX_PARSER_ERROR}':
+                                msg = DATA_PROCESSING_ERROR;
+                                break;
+
+                            default:
+                                msg.message = '<spring:message javaScriptEscape="true" code="error.unknown"/>';
+                                errorDetailsRequired = true;
+                                break;
+                        }
+                        if (errorDetailsRequired && errorThrown) {
+                            msg.message += ' (' + errorThrown + ')';
+                        }
+                        ASMX.Messages.show(msg);
                     }
                 });
                 return false;
