@@ -13,6 +13,9 @@
 
 <link rel="shortcut icon" href="<c:url value="/assets/favicon.png"/>">
 
+<link rel="stylesheet" href="<c:url value="/assets/application.css"/>">
+<script src="<c:url value="/assets/application.js"/>"></script>
+
 <c:choose>
     <c:when test="${not empty title and not empty subtitle}">
         <title>${subtitle}&nbsp;&#x2014;&nbsp;${title}</title>

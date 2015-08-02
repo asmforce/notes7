@@ -1,5 +1,6 @@
 package com.asmx.services;
 
+import com.asmx.data.Sorting;
 import com.asmx.data.daos.SpacesDao;
 import com.asmx.data.entities.Space;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,12 @@ public class NotesServiceSimple implements NotesService {
 
     @Override
     public List<Space> getSpaces(int userId) {
-        return spacesDao.getSpaces(userId);
+        return spacesDao.getSpaces(userId, null);
+    }
+
+    @Override
+    public List<Space> getSpaces(int userId, Sorting sorting) {
+        return spacesDao.getSpaces(userId, sorting);
     }
 
     @Override

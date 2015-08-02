@@ -1,17 +1,19 @@
-<%@ page import="com.asmx.controllers.data.entities.GenericResponse" %>
-<%@ page import="com.asmx.controllers.data.entities.Message" %>
+<%@ page import="com.asmx.controllers.data.entities.GenericResponseJson" %>
+<%@ page import="com.asmx.controllers.data.entities.MessageJson" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<c:set var="STATUS_SUCCESS" value="<%= GenericResponse.STATUS_SUCCESS %>"/>
-<c:set var="STATUS_UNEXPECTED" value="<%= GenericResponse.STATUS_UNEXPECTED %>"/>
-<c:set var="STATUS_UNAUTHORISED" value="<%= GenericResponse.STATUS_UNAUTHORISED %>"/>
-<c:set var="STATUS_INVALID_FORM" value="<%= GenericResponse.STATUS_INVALID_FORM %>"/>
+<c:set var="STATUS_SUCCESS" value="<%= GenericResponseJson.STATUS_SUCCESS %>"/>
+<c:set var="STATUS_UNEXPECTED" value="<%= GenericResponseJson.STATUS_UNEXPECTED %>"/>
+<c:set var="STATUS_UNAUTHORISED" value="<%= GenericResponseJson.STATUS_UNAUTHORISED %>"/>
+<c:set var="STATUS_INVALID_FORM" value="<%= GenericResponseJson.STATUS_FORGED_REQUEST %>"/>
 
-<c:set var="CLASS_INFO" value="<%= Message.CLASS_INFO %>"/>
-<c:set var="CLASS_WARNING" value="<%= Message.CLASS_WARNING %>"/>
-<c:set var="CLASS_ERROR" value="<%= Message.CLASS_ERROR %>"/>
+<c:set var="ERROR_ID_CLIENT_SERVER" value="<%= MessageJson.ERROR_ID_CLIENT_SERVER %>"/>
+
+<c:set var="CLASS_INFO" value="<%= MessageJson.CLASS_INFO %>"/>
+<c:set var="CLASS_WARNING" value="<%= MessageJson.CLASS_WARNING %>"/>
+<c:set var="CLASS_ERROR" value="<%= MessageJson.CLASS_ERROR %>"/>
 
 <c:set var="STATUS_AJAX_ERROR" value="error"/>
 <c:set var="STATUS_AJAX_NO_CONTENT" value="nocontent"/>
@@ -66,13 +68,13 @@
 
 <script type="text/javascript">
     (function () {
-        var CLIENT_SERVER_ERROR_ID = 'client-server';
+        var ERROR_ID_CLIENT_SERVER = '${ERROR_ID_CLIENT_SERVER}';
 
         var DATA_PROCESSING_ERROR = {
             title: '<spring:message javaScriptEscape="true" code="error"/>',
             message: '<spring:message javaScriptEscape="true" code="error.data"/>',
             classes: '${CLASS_ERROR}',
-            id: CLIENT_SERVER_ERROR_ID
+            id: ERROR_ID_CLIENT_SERVER
         };
 
         $('#signForm').form({
@@ -94,7 +96,7 @@
             inline: true,
             onSuccess: function() {
                 var form = $(this);
-                var formUi = form.find('.ui.form').first();
+                var formUi = form.find('#signForm .ui.form').first();
                 var submitButton = form.find('.submit.button').first();
                 var requestData = {};
 
@@ -166,7 +168,7 @@
                         var msg = {
                             title: '<spring:message javaScriptEscape="true" code="error"/>',
                             classes: '${CLASS_ERROR}',
-                            id: CLIENT_SERVER_ERROR_ID
+                            id: ERROR_ID_CLIENT_SERVER
                         };
 
                         switch (textStatus) {

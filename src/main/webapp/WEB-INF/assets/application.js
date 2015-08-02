@@ -2,7 +2,7 @@ var ASMX = {};
 
 (function() {
     var CONTAINER = 'div.messages-wrapper';
-    var TEMPLATE = 'script[data-message]:first';
+    var TEMPLATE = 'script[type="application/x-template"]:first';
 
     function showMessage($container, $template, message) {
         var $popup = $($template.jqote(message, '@'));

@@ -1,8 +1,8 @@
 package com.asmx.controllers;
 
 import com.asmx.Constants;
-import com.asmx.controllers.data.entities.GenericResponse;
-import com.asmx.controllers.data.entities.Message;
+import com.asmx.controllers.data.entities.GenericResponseJson;
+import com.asmx.controllers.data.entities.MessageJson;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.http.HttpStatus;
@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.Locale;
 
 /**
@@ -24,14 +26,21 @@ public class ErrorsController implements MessageSourceAware {
     private MessageSource messageSource;
 
     @RequestMapping(value = "/403")
-    public String on403() {
+    public String on403(RedirectAttributes attributes, Locale locale) {
+        attributes.addFlashAttribute("messages", Collections.singletonList(new MessageJson(
+                messageSource.getMessage("error.unauthorized", null, locale),
+                messageSource.getMessage("error", null, locale),
+                MessageJson.CLASS_ERROR
+        )));
         return "redirect:/sign";
     }
 
     @RequestMapping(value = "/403", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
     @ResponseBody
-    public Response onAjax403(Locale locale) {
-        return createResponse(HttpStatus.FORBIDDEN, locale);
+    public ResponseJson onAjax403() {
+        ResponseJson response = new ResponseJson(HttpStatus.FORBIDDEN);
+        response.setStatusCode(GenericResponseJson.STATUS_UNAUTHORISED);
+        return response;
     }
 
     @RequestMapping(value = "/404")
@@ -42,8 +51,20 @@ public class ErrorsController implements MessageSourceAware {
 
     @RequestMapping(value = "/404", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
     @ResponseBody
-    public Response onAjax404(Locale locale) {
-        return createResponse(HttpStatus.NOT_FOUND, locale);
+    public ResponseJson onAjax404(Locale locale) {
+        return createUnexpectedErrorResponse(HttpStatus.NOT_FOUND, locale);
+    }
+
+    @RequestMapping(value = "/415")
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    public ModelAndView on415() {
+        return new ModelAndView("error", "code", HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    @RequestMapping(value = "/415", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
+    @ResponseBody
+    public ResponseJson onAjax415(Locale locale) {
+        return createForgedRequestErrorResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, locale);
     }
 
     @RequestMapping(value = "/500")
@@ -54,17 +75,29 @@ public class ErrorsController implements MessageSourceAware {
 
     @RequestMapping(value = "/500", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
     @ResponseBody
-    public Response onAjax500(Locale locale) {
-        return createResponse(HttpStatus.INTERNAL_SERVER_ERROR, locale);
+    public ResponseJson onAjax500(Locale locale) {
+        return createUnexpectedErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, locale);
     }
 
-    private Response createResponse(HttpStatus status, Locale locale) {
-        Response response = new Response(status);
-        response.addMessage(new Message(
+    private ResponseJson createUnexpectedErrorResponse(HttpStatus status, Locale locale) {
+        ResponseJson response = new ResponseJson(status);
+        response.setStatusCode(GenericResponseJson.STATUS_UNEXPECTED);
+        response.addMessage(new MessageJson(
                 status.getReasonPhrase(),
                 messageSource.getMessage("error.unexpected", null, locale),
-                Message.CLASS_ERROR,
-                Integer.toString(status.value())
+                MessageJson.CLASS_ERROR
+        ));
+        return response;
+    }
+
+    private ResponseJson createForgedRequestErrorResponse(HttpStatus status, Locale locale) {
+        ResponseJson response = new ResponseJson(status);
+        response.setStatusCode(GenericResponseJson.STATUS_FORGED_REQUEST);
+        response.addMessage(new MessageJson(
+                messageSource.getMessage("error.forged_request", null, locale),
+                messageSource.getMessage("error", null, locale),
+                MessageJson.CLASS_ERROR,
+                MessageJson.ERROR_ID_CLIENT_SERVER
         ));
         return response;
     }
@@ -74,11 +107,10 @@ public class ErrorsController implements MessageSourceAware {
         this.messageSource = messageSource;
     }
 
-    private static class Response extends GenericResponse {
+    private static class ResponseJson extends GenericResponseJson {
         private Integer httpStatusCode;
 
-        public Response(HttpStatus status) {
-            setStatusCode(STATUS_UNEXPECTED);
+        public ResponseJson(HttpStatus status) {
             httpStatusCode = status.value();
         }
 

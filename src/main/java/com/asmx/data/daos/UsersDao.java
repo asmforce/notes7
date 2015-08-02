@@ -9,5 +9,5 @@ import com.asmx.data.entities.User;
 public interface UsersDao {
     User getUser(int id);
     User getUser(String name);
-    void putUser(User user);
+    boolean putUser(User user);
 }

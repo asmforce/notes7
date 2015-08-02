@@ -1,8 +1,8 @@
 package com.asmx.controllers;
 
 import com.asmx.Constants;
-import com.asmx.controllers.data.entities.GenericResponse;
-import com.asmx.controllers.data.entities.Message;
+import com.asmx.controllers.data.entities.GenericResponseJson;
+import com.asmx.controllers.data.entities.MessageJson;
 import com.asmx.data.entities.User;
 import com.asmx.services.UsersService;
 import org.apache.commons.lang.StringUtils;
@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 import java.util.Locale;
@@ -31,8 +31,9 @@ public class UsersController implements MessageSourceAware {
     private MessageSource messageSource;
 
     @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView sign(User user) {
-        return new ModelAndView("sign", "user", user);
+    public String sign(User user, Model model) {
+        model.addAttribute("user", user);
+        return "sign";
     }
 
     @RequestMapping(method = RequestMethod.POST, headers = Constants.AJAX_HEADER)
@@ -45,24 +46,24 @@ public class UsersController implements MessageSourceAware {
         if (StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(password)) {
             User user = signIn(session, name, password);
             if (user == null) {
-                response.setStatusCode(GenericResponse.STATUS_UNAUTHORISED);
-                response.addMessage(new Message(
+                response.setStatusCode(GenericResponseJson.STATUS_UNAUTHORISED);
+                response.addMessage(new MessageJson(
                         messageSource.getMessage("sign.unauthorized", null, locale),
                         messageSource.getMessage("sign.unauthorized.title", null, locale),
-                        Message.CLASS_ERROR,
+                        MessageJson.CLASS_ERROR,
                         "unauthorized"
                 ));
             } else {
-                response.setStatusCode(GenericResponse.STATUS_SUCCESS);
+                response.setStatusCode(GenericResponseJson.STATUS_SUCCESS);
                 response.setUsername(user.getName());
                 response.setRedirection("/spaces");
             }
         } else {
-            response.setStatusCode(GenericResponse.STATUS_INVALID_FORM);
-            response.addMessage(new Message(
-                    messageSource.getMessage("error.form.invalid", null, locale),
+            response.setStatusCode(GenericResponseJson.STATUS_FORGED_REQUEST);
+            response.addMessage(new MessageJson(
+                    messageSource.getMessage("error.forged_request", null, locale),
                     messageSource.getMessage("error", null, locale),
-                    Message.CLASS_ERROR,
+                    MessageJson.CLASS_ERROR,
                     "forged"
             ));
         }
@@ -103,7 +104,7 @@ public class UsersController implements MessageSourceAware {
     }
 
     @SuppressWarnings("unused")
-    private static class Response extends GenericResponse {
+    private static class Response extends GenericResponseJson {
         // Successfully authorized user's name
         private String username;
 

@@ -14,8 +14,5 @@
         <tiles:insertAttribute name="page"/>
 
         <tiles:insertTemplate template="messages.jsp"/>
-
-        <link rel="stylesheet" href="<c:url value="/assets/application.css"/>">
-        <script src="<c:url value="/assets/application.js"/>"></script>
     </body>
 </html>

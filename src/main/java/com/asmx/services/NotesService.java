@@ -1,5 +1,6 @@
 package com.asmx.services;
 
+import com.asmx.data.Sorting;
 import com.asmx.data.entities.Space;
 
 import java.util.List;
@@ -12,5 +13,6 @@ import java.util.List;
 **/
 public interface NotesService {
     List<Space> getSpaces(int userId);
+    List<Space> getSpaces(int userId, Sorting sorting);
     Space getSpace(int userId, int id);
 }

@@ -1,5 +1,6 @@
 package com.asmx.data.daos;
 
+import com.asmx.data.Sorting;
 import com.asmx.data.entities.Space;
 
 import java.util.List;
@@ -9,9 +10,7 @@ import java.util.List;
  * Timestamp: 18.06.15 1:02.
 **/
 public interface SpacesDao {
-    List<Space> getSpaces(int userId);
+    List<Space> getSpaces(int userId, Sorting sorting);
     Space getSpace(int userId, int id);
-    Space getSpace(int id);
-    Space getSpace(int userId, String name);
-    void putSpace(Space space);
+    boolean putSpace(Space space);
 }

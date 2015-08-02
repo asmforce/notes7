@@ -2,6 +2,7 @@ package com.asmx.controllers.errors;
 
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -25,6 +26,12 @@ public class CustomExceptionHandler {
     public String onDataAccessException(DataAccessException e) {
         logger.error("Database error", e);
         return "forward:/" + HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public String onDataAccessException(HttpMediaTypeNotSupportedException e) {
+        logger.error("Unsupported media type", e);
+        return "forward:/" + HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
     }
 
     @ExceptionHandler(NotFoundException.class)

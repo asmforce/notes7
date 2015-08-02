@@ -45,7 +45,7 @@ public class UsersDaoSimple extends Dao implements UsersDao {
                 }
             }
         } catch (DataAccessException e) {
-            logger.error("Unable to get a user #" + id, e);
+            logger.error("Unable to get a user #" + id);
             throw e;
         }
     }
@@ -68,13 +68,13 @@ public class UsersDaoSimple extends Dao implements UsersDao {
                 }
             }
         } catch (DataAccessException e) {
-            logger.error("Unable to get a user `" + name + "`", e);
+            logger.error("Unable to get a user `" + name + "`");
             throw e;
         }
     }
 
     @Override
-    public void putUser(User user) {
+    public boolean putUser(User user) {
         assert user != null;
         assert user.getId() >= 0;
         assert StringUtils.isNotBlank(user.getName());
@@ -88,32 +88,43 @@ public class UsersDaoSimple extends Dao implements UsersDao {
 
         JdbcTemplate template = getJdbcTemplate();
         if (user.getId() == GENERATE_ID) {
-            GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-            int rows = template.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO users (id, name, key, language, timezone) VALUES (DEFAULT, ?, ?, ?, ?)",
-                        new String[] {"id"}
-                );
-                ps.setString(1, user.getName());
-                ps.setString(2, user.getKey());
-                ps.setString(3, user.getLanguage());
-                ps.setString(4, user.getTimezone());
-                return ps;
-            }, keyHolder);
+            try {
+                GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+                template.update(connection -> {
+                    PreparedStatement ps = connection.prepareStatement(
+                            "INSERT INTO users (id, name, key, language, timezone) VALUES (DEFAULT, ?, ?, ?, ?)",
+                            new String[]{"id"}
+                    );
+                    ps.setString(1, user.getName());
+                    ps.setString(2, user.getKey());
+                    ps.setString(3, user.getLanguage());
+                    ps.setString(4, user.getTimezone());
+                    return ps;
+                }, keyHolder);
 
-            assert rows == 1;
-
-            Number newId = keyHolder.getKey();
-            user.setId(newId.intValue());
+                Number newId = keyHolder.getKey();
+                user.setId(newId.intValue());
+                return true;
+            } catch (DataAccessException e) {
+                logger.error("Unable to insert a user `" + user.getName() + "`");
+                throw e;
+            }
         } else {
-            template.update(
-                    "UPDATE users SET name = ?, key = ?, language = ?, timezone = ? WHERE id = ?",
-                    user.getName(),
-                    user.getKey(),
-                    user.getLanguage(),
-                    user.getTimezone(),
-                    user.getId()
-            );
+            try {
+                int rows = template.update(
+                        "UPDATE users SET name = ?, key = ?, language = ?, timezone = ? WHERE id = ?",
+                        user.getName(),
+                        user.getKey(),
+                        user.getLanguage(),
+                        user.getTimezone(),
+                        user.getId()
+                );
+
+                return rows >= 1;
+            } catch (DataAccessException e) {
+                logger.error("Unable to update a user #" + user.getId());
+                throw e;
+            }
         }
     }
 
