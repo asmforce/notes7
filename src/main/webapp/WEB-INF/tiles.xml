@@ -18,4 +18,12 @@
     <definition name="space" extends="base">
         <put-attribute name="page" value="/WEB-INF/views/space.jsp"/>
     </definition>
+
+    <definition name="notes" extends="base">
+        <put-attribute name="page" value="/WEB-INF/views/notes.jsp"/>
+    </definition>
+
+    <definition name="note" extends="base">
+        <put-attribute name="page" value="/WEB-INF/views/note.jsp"/>
+    </definition>
 </tiles-definitions>
