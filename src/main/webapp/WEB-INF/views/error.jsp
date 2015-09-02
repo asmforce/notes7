@@ -12,8 +12,10 @@
     </c:choose>
 </c:if>
 
-<div class="ui one column stackable center aligned page grid">
-    <h1 class="ui center aligned icon red header">
-        <i class="warning sign icon"></i>(${message})
-    </h1>
+<div class="ui one column middle aligned center aligned grid">
+    <div class="column">
+        <h1 class="ui center aligned icon red header">
+            <i class="warning sign icon"></i>(${message})
+        </h1>
+    </div>
 </div>

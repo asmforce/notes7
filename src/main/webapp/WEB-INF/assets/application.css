@@ -43,7 +43,8 @@
 
 body > div.messages-wrapper {
     width: 30%;
-    height: 100%;
+    min-width: 300px;
+    max-width: 500px;
     padding: 15px;
     position: absolute;
     top: 0;
@@ -60,4 +61,16 @@ body > div.messages-wrapper {
 
 .careless:hover {
     opacity: 1;
+}
+
+body {
+    background-color: #dadada;
+}
+
+body > .grid {
+    height: 100%;
+}
+
+body > .grid > .center-tile {
+    width: 500px !important;
 }

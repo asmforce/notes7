@@ -3,8 +3,8 @@
 
 <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.6/semantic.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.6/semantic.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.0.8/semantic.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.0.8/semantic.js"></script>
 
 <script src="<c:url value="/assets/vendor/nprogress.js"/>"></script>
 <link rel="stylesheet" href="<c:url value="/assets/vendor/nprogress.css"/>">

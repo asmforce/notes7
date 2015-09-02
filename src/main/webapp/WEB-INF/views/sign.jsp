@@ -21,8 +21,8 @@
 <c:set var="STATUS_AJAX_TIMEOUT" value="timeout"/>
 <c:set var="STATUS_AJAX_ABORT" value="abort"/>
 
-<div class="ui one column stackable center aligned page grid">
-    <div class="column six wide left aligned">
+<div class="ui one column middle aligned center aligned grid">
+    <div class="center-tile column left aligned">
         <form:form id="signForm" action="sign" method="POST">
             <div class="ui top attached center aligned segment">
                 <div class="ui green header">
@@ -78,21 +78,22 @@
         };
 
         $('#signForm').form({
-            username: {
-                identifier: 'username',
-                rules: [{
-                    type: 'empty',
-                    prompt: '<spring:message javaScriptEscape="true" code="error.form.field_required"/>'
-                }]
+            fields: {
+                username: {
+                    identifier: 'username',
+                    rules: [{
+                        type: 'empty',
+                        prompt: '<spring:message javaScriptEscape="true" code="error.form.field_required"/>'
+                    }]
+                },
+                password: {
+                    identifier: 'password',
+                    rules: [{
+                        type: 'empty',
+                        prompt: '<spring:message javaScriptEscape="true" code="error.form.field_required"/>'
+                    }]
+                }
             },
-            password: {
-                identifier: 'password',
-                rules: [{
-                    type: 'empty',
-                    prompt: '<spring:message javaScriptEscape="true" code="error.form.field_required"/>'
-                }]
-            }
-        }, {
             inline: true,
             onSuccess: function() {
                 var form = $(this);
