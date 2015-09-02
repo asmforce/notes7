@@ -8,7 +8,6 @@ import java.util.Date;
 **/
 public class SpaceSimple implements Space {
     private int id;
-    private int userId;
     private String name;
     private String description;
     private Date creationTime;
@@ -21,16 +20,6 @@ public class SpaceSimple implements Space {
     @Override
     public void setId(int id) {
         this.id = id;
-    }
-
-    @Override
-    public int getUserId() {
-        return userId;
-    }
-
-    @Override
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
     @Override

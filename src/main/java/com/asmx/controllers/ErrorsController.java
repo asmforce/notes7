@@ -1,6 +1,5 @@
 package com.asmx.controllers;
 
-import com.asmx.Constants;
 import com.asmx.controllers.data.entities.GenericResponseJson;
 import com.asmx.controllers.data.entities.MessageJson;
 import org.springframework.context.MessageSource;
@@ -22,8 +21,21 @@ import java.util.Locale;
  * Timestamp: 07.06.15 11:35.
 **/
 @Controller
-public class ErrorsController implements MessageSourceAware {
+public class ErrorsController extends ControllerBase implements MessageSourceAware {
     private MessageSource messageSource;
+
+    @RequestMapping(value = "/400")
+    public ModelAndView on400() {
+        return new ModelAndView("error", "code", HttpServletResponse.SC_BAD_REQUEST);
+    }
+
+    @RequestMapping(value = "/400", headers = AJAX_HEADER, produces = CONTENT_TYPE_JSON)
+    @ResponseBody
+    public ResponseJson onAjax400() {
+        ResponseJson response = new ResponseJson(HttpStatus.BAD_REQUEST);
+        response.setStatusCode(GenericResponseJson.STATUS_FORGED_REQUEST);
+        return response;
+    }
 
     @RequestMapping(value = "/403")
     public String on403(RedirectAttributes attributes, Locale locale) {
@@ -35,7 +47,7 @@ public class ErrorsController implements MessageSourceAware {
         return "redirect:/sign";
     }
 
-    @RequestMapping(value = "/403", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
+    @RequestMapping(value = "/403", headers = AJAX_HEADER, produces = CONTENT_TYPE_JSON)
     @ResponseBody
     public ResponseJson onAjax403() {
         ResponseJson response = new ResponseJson(HttpStatus.FORBIDDEN);
@@ -49,7 +61,7 @@ public class ErrorsController implements MessageSourceAware {
         return new ModelAndView("error", "code", HttpServletResponse.SC_NOT_FOUND);
     }
 
-    @RequestMapping(value = "/404", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
+    @RequestMapping(value = "/404", headers = AJAX_HEADER, produces = CONTENT_TYPE_JSON)
     @ResponseBody
     public ResponseJson onAjax404(Locale locale) {
         return createUnexpectedErrorResponse(HttpStatus.NOT_FOUND, locale);
@@ -61,7 +73,7 @@ public class ErrorsController implements MessageSourceAware {
         return new ModelAndView("error", "code", HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
     }
 
-    @RequestMapping(value = "/415", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
+    @RequestMapping(value = "/415", headers = AJAX_HEADER, produces = CONTENT_TYPE_JSON)
     @ResponseBody
     public ResponseJson onAjax415(Locale locale) {
         return createForgedRequestErrorResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, locale);
@@ -73,7 +85,7 @@ public class ErrorsController implements MessageSourceAware {
         return new ModelAndView("error", "code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "/500", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
+    @RequestMapping(value = "/500", headers = AJAX_HEADER, produces = CONTENT_TYPE_JSON)
     @ResponseBody
     public ResponseJson onAjax500(Locale locale) {
         return createUnexpectedErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, locale);

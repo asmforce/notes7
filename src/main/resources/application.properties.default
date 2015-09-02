@@ -2,3 +2,5 @@ datasource.jndi-name =jdbc/notes7
 
 # Replace with yours
 users.salt =MTIzNDU2Nzg5MA==
+
+timestamp.pattern =yyyy.MM.dd HH:mm

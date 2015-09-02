@@ -1,6 +1,5 @@
 package com.asmx.controllers;
 
-import com.asmx.Constants;
 import com.asmx.controllers.data.entities.GenericResponseJson;
 import com.asmx.controllers.data.entities.MessageJson;
 import com.asmx.data.entities.User;
@@ -25,7 +24,7 @@ import java.util.Locale;
 **/
 @Controller
 @RequestMapping("/sign")
-public class UsersController implements MessageSourceAware {
+public class UsersController extends ControllerBase implements MessageSourceAware {
     @Autowired
     private UsersService usersService;
     private MessageSource messageSource;
@@ -36,7 +35,7 @@ public class UsersController implements MessageSourceAware {
         return "sign";
     }
 
-    @RequestMapping(method = RequestMethod.POST, headers = Constants.AJAX_HEADER)
+    @RequestMapping(method = RequestMethod.POST, headers = AJAX_HEADER)
     @ResponseBody
     public Response signInAjax(HttpSession session, @ModelAttribute SignInForm signInForm, Locale locale) {
         String name = StringUtils.trim(signInForm.getUsername());
@@ -44,7 +43,7 @@ public class UsersController implements MessageSourceAware {
 
         Response response = new Response();
         if (StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(password)) {
-            User user = signIn(session, name, password);
+            User user = usersService.authorize(name, password, session);
             if (user == null) {
                 response.setStatusCode(GenericResponseJson.STATUS_UNAUTHORISED);
                 response.addMessage(new MessageJson(
@@ -68,12 +67,6 @@ public class UsersController implements MessageSourceAware {
             ));
         }
         return response;
-    }
-
-    private User signIn(HttpSession session, String name, String password) {
-        User user = usersService.getAuthorizedUser(name, password);
-        session.setAttribute(Constants.AUTHORIZED_USER, user);
-        return user;
     }
 
     @Override

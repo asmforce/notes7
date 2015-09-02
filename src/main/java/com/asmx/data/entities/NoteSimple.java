@@ -8,7 +8,6 @@ import java.util.Date;
 **/
 public class NoteSimple implements Note {
     private int id;
-    private int userId;
     private int chainId;
     private String text;
     private Date ideaTime;
@@ -22,16 +21,6 @@ public class NoteSimple implements Note {
     @Override
     public void setId(int id) {
         this.id = id;
-    }
-
-    @Override
-    public int getUserId() {
-        return userId;
-    }
-
-    @Override
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
     @Override

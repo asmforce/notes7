@@ -16,16 +16,22 @@ import javax.servlet.http.HttpServletResponse;
 public class CustomExceptionHandler {
     private static final Logger logger = Logger.getLogger(CustomExceptionHandler.class);
 
+    @ExceptionHandler()
+    public String onForgedRequest(ForgedRequestException e) {
+        logger.error("Forged request error", e);
+        return "forward:/" + HttpServletResponse.SC_BAD_REQUEST;
+    }
+
     @ExceptionHandler(ForbiddenException.class)
     public String onForbidden(ForbiddenException e) {
         logger.debug("User authorization required", e);
         return "forward:/" + HttpServletResponse.SC_FORBIDDEN;
     }
 
-    @ExceptionHandler(DataAccessException.class)
-    public String onDataAccessException(DataAccessException e) {
-        logger.error("Database error", e);
-        return "forward:/" + HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+    @ExceptionHandler(NotFoundException.class)
+    public String onNotFoundException(NotFoundException e) {
+        logger.error("Request leads to nowhere", e);
+        return "forward:/" + HttpServletResponse.SC_NOT_FOUND;
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -34,9 +40,9 @@ public class CustomExceptionHandler {
         return "forward:/" + HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public String onNotFoundException(NotFoundException e) {
-        logger.error("Request leads to nowhere", e);
-        return "forward:/" + HttpServletResponse.SC_NOT_FOUND;
+    @ExceptionHandler(DataAccessException.class)
+    public String onDataAccessException(DataAccessException e) {
+        logger.error("Database error", e);
+        return "forward:/" + HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
     }
 }

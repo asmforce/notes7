@@ -1,10 +1,10 @@
 package com.asmx.controllers;
 
-import com.asmx.Constants;
 import com.asmx.controllers.data.Authorized;
 import com.asmx.controllers.data.entities.GenericResponseJson;
 import com.asmx.controllers.data.entities.SortingJson;
 import com.asmx.controllers.errors.NotFoundException;
+import com.asmx.data.Sorting;
 import com.asmx.data.entities.Space;
 import com.asmx.data.entities.User;
 import com.asmx.services.NotesService;
@@ -23,35 +23,35 @@ import java.util.List;
  * Timestamp: 22.06.15 0:53.
 **/
 @Controller
-public class SpacesController {
+public class SpacesController extends ControllerBase {
     @Autowired
     private NotesService notesService;
 
     @RequestMapping("/spaces")
     public ModelAndView spaces(@Authorized User user) {
-        return new ModelAndView("spaces", "spaces", notesService.getSpaces(user.getId()));
+        return new ModelAndView("spaces", "spaces", notesService.getSpaces(user));
     }
 
-    @RequestMapping(value = "/spaces", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
+    @RequestMapping(value = "/spaces", headers = AJAX_HEADER, produces = CONTENT_TYPE_JSON)
     @ResponseBody
     public ResponseJson spacesAjax(@Authorized User user, @RequestBody RequestJson request) {
-        SortingJson sorting = request.getSorting();
-        return new ResponseJson(notesService.getSpaces(user.getId(), ControllerUtils.sorting(sorting)));
+        final Sorting sorting = sorting(request.getSorting());
+        return new ResponseJson(notesService.getSpaces(user, sorting));
     }
 
     @RequestMapping("/space/{id:\\d+}")
     public ModelAndView space(@Authorized User user, @PathVariable("id") int id) throws NotFoundException {
-        Space space = notesService.getSpace(user.getId(), id);
+        Space space = notesService.getSpace(user, id);
         if (space == null) {
             throw new NotFoundException();
         }
         return new ModelAndView("space", "space", space);
     }
 
-    @RequestMapping(value = "/space/{id:\\d+}", headers = Constants.AJAX_HEADER, produces = Constants.CONTENT_TYPE_JSON)
+    @RequestMapping(value = "/space/{id:\\d+}", headers = AJAX_HEADER, produces = CONTENT_TYPE_JSON)
     @ResponseBody
     public ResponseJson spaceAjax(@Authorized User user, @PathVariable("id") int id) throws NotFoundException {
-        Space space = notesService.getSpace(user.getId(), id);
+        Space space = notesService.getSpace(user, id);
         if (space == null) {
             throw new NotFoundException();
         }

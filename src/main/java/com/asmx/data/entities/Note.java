@@ -9,8 +9,6 @@ import java.util.Date;
 public interface Note {
     int getId();
     void setId(int id);
-    int getUserId();
-    void setUserId(int userId);
     int getChainId();
     void setChainId(int chainId);
     String getText();

@@ -3,6 +3,7 @@ package com.asmx.data.daos;
 import com.asmx.data.Sorting;
 import com.asmx.data.entities.Space;
 import com.asmx.data.entities.SpaceFactory;
+import com.asmx.data.entities.User;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -43,53 +44,53 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
     }
 
     @Override
-    public List<Space> getSpaces(int userId, Sorting sorting) {
-        assert userId >= 0;
+    public List<Space> getSpaces(User user, Sorting sorting) {
+        assert user.getId() >= 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
             return template.query(
                     "SELECT * FROM spaces s WHERE user_id = ? " + getSortingClause(sorting, DEFAULT_SORTING),
-                    spaceMapper, userId
+                    spaceMapper, user.getId()
             );
         } catch (DataAccessException e) {
-            logger.error("Unable to get spaces (user #" + userId + ")");
+            logger.error("Unable to get spaces (user #" + user.getId() + ")");
             throw e;
         }
     }
 
     @Override
-    public Space getSpace(int userId, int id) {
-        assert userId > 0;
+    public Space getSpace(User user, int id) {
+        assert user.getId() > 0;
         assert id >= 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
             List<Space> spaces = template.query(
                     "SELECT * FROM spaces WHERE user_id = ? AND id = ?",
-                    spaceMapper, userId, id
+                    spaceMapper, user.getId(), id
             );
 
             if (CollectionUtils.isEmpty(spaces)) {
-                logger.debug("A space #" + id + " (user #" + userId + ") not exists");
+                logger.debug("A space #" + id + " (user #" + user.getId() + ") not exists");
             } else {
                 if (spaces.size() == 1) {
                     return spaces.get(0);
                 } else {
-                    throw new DataIntegrityViolationException("A space #" + id + " (user #" + userId + ") duplicated " + spaces.size() + " time(s)");
+                    throw new DataIntegrityViolationException("A space #" + id + " (user #" + user.getId() + ") duplicated " + spaces.size() + " time(s)");
                 }
             }
         } catch (DataAccessException e) {
-            logger.error("Unable to get a space #" + id + " (user #" + userId + ")");
+            logger.error("Unable to get a space #" + id + " (user #" + user.getId() + ")");
             throw e;
         }
         return null;
     }
 
     @Override
-    public boolean putSpace(Space space) {
+    public boolean putSpace(User user, Space space) {
+        assert user.getId() > 0;
         assert space.getId() >= 0;
-        assert space.getUserId() > 0;
         assert StringUtils.isNotBlank(space.getName());
         assert space.getName().length() < Space.NAME_MAX_LENGTH;
         assert space.getDescription() != null;
@@ -104,7 +105,7 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
                             "INSERT INTO spaces (id, user_id, name, description, creation_time) VALUES (DEFAULT, ?, ?, ?, ?)",
                             new String[]{"id"}
                     );
-                    ps.setInt(1, space.getUserId());
+                    ps.setInt(1, user.getId());
                     ps.setString(2, space.getName());
                     ps.setString(3, space.getDescription());
                     ps.setTimestamp(4, asTimestamp(space.getCreationTime()));
@@ -115,7 +116,7 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
                 space.setId(newId.intValue());
                 return true;
             } catch (DataAccessException e) {
-                logger.error("Unable to insert space (user #" + space.getUserId() + ")");
+                logger.error("Unable to insert space (user #" + user.getId() + ")");
                 throw e;
             }
         } else {
@@ -126,12 +127,12 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
                         space.getDescription(),
                         space.getCreationTime(),
                         space.getId(),
-                        space.getUserId()
+                        user.getId()
                 );
 
                 return rows >= 1;
             } catch (DataAccessException e) {
-                logger.error("Unable to update space #" + space.getId() + " (user #" + space.getUserId() + ")");
+                logger.error("Unable to update space #" + space.getId() + " (user #" + user.getId() + ")");
                 throw e;
             }
         }
@@ -147,7 +148,6 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
         public Space mapRow(ResultSet row, int index) throws SQLException {
             Space space = spaceFactory.create();
             space.setId(row.getInt("id"));
-            space.setUserId(row.getInt("user_id"));
             space.setName(row.getString("name"));
             space.setDescription(row.getString("description"));
             space.setCreationTime(asDate(row.getTimestamp("creation_time")));

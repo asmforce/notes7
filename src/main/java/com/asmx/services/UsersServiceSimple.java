@@ -1,5 +1,7 @@
 package com.asmx.services;
 
+import com.asmx.Constants;
+import com.asmx.Utils;
 import com.asmx.data.daos.UsersDao;
 import com.asmx.data.entities.User;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.servlet.http.HttpSession;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
@@ -32,9 +35,19 @@ public class UsersServiceSimple implements UsersService {
     private UsersDao usersDao;
     @Value("${users.salt}")
     private String salt;
+    @Value("${timestamp.pattern}")
+    private String timestampPattern;
 
     @Override
-    public User getAuthorizedUser(String name, String password) {
+    public User authorize(String name, String password, HttpSession session) {
+        User user = authorize(name, password);
+        session.setAttribute(Constants.AUTHORIZED_USER, user);
+        session.setAttribute(Constants.AUTHORIZED_USER_LOCALE, Utils.getLocale(user));
+        session.setAttribute(Constants.AUTHORIZED_USER_TIMESTAMP_FORMAT, Utils.getTimestampFormat(user, timestampPattern));
+        return user;
+    }
+
+    private User authorize(String name, String password) {
         assert StringUtils.isNotBlank(name);
         assert StringUtils.isNotBlank(password);
 

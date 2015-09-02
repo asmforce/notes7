@@ -1,7 +1,6 @@
 package com.asmx.controllers.data;
 
 import com.asmx.Utils;
-import com.asmx.data.entities.User;
 import org.springframework.web.servlet.LocaleResolver;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,14 +14,7 @@ import java.util.Locale;
 public class UserLocaleResolver implements LocaleResolver {
     @Override
     public Locale resolveLocale(HttpServletRequest request) {
-        User user = Utils.getAuthorizedUser(request.getSession(false));
-        Locale locale = null;
-
-        if (user != null) {
-            locale = Locale.forLanguageTag(user.getLanguage());
-        }
-
-        return locale == null ? request.getLocale() : locale;
+        return Utils.getLocale(request);
     }
 
     @Override

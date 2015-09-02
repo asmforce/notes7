@@ -11,8 +11,6 @@ public interface Space {
 
     int getId();
     void setId(int id);
-    int getUserId();
-    void setUserId(int userId);
     String getName();
     void setName(String name);
     String getDescription();

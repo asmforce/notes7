@@ -1,5 +1,6 @@
 package com.asmx.data.daos;
 
+import com.asmx.data.Pagination;
 import com.asmx.data.Sorting;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -44,6 +45,10 @@ public class Dao {
 
     protected Date asDate(Timestamp timestamp) {
         return new Date(timestamp.getTime());
+    }
+
+    protected String getPaginationClause(Pagination pagination) {
+        return "OFFSET " + pagination.getBegin() + " LIMIT " + pagination.getSize();
     }
 
     /**
