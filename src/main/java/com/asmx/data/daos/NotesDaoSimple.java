@@ -30,6 +30,7 @@ public class NotesDaoSimple extends Dao implements NotesDao {
     private static final Logger logger = Logger.getLogger(NotesDaoSimple.class);
 
     private static final Sorting DEFAULT_SORTING = Sorting.sorted("id", false);
+    private static final Sorting DEFAULT_CHAIN_SORTING = Sorting.sorted("idea_time", true);
 
     private NoteFactory noteFactory;
     private NoteMapper noteMapper = new NoteMapper();
@@ -124,7 +125,10 @@ public class NotesDaoSimple extends Dao implements NotesDao {
 
         JdbcTemplate template = getJdbcTemplate();
         try {
-            return template.query("SELECT * FROM notes WHERE user_id = ? AND chain_id = ?", noteMapper, user.getId(), chainId);
+            return template.query("SELECT * FROM notes WHERE user_id = ? AND chain_id = ? " +
+                    getSortingClause(DEFAULT_CHAIN_SORTING),
+                    noteMapper, user.getId(), chainId
+            );
         } catch (DataAccessException e) {
             logger.error("Unable to get notes (chain #" + chainId + ", user #" + user.getId() + ")");
             throw e;
