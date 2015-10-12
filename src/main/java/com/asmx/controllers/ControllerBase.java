@@ -39,16 +39,16 @@ public abstract class ControllerBase {
         return sorting(sortingJson.getCriterion(), sortingDirection(sortingJson.getDirection()));
     }
 
-    public static Sorting sorting(String criteria, String direction, boolean defaultDirection) {
-        return Sorting.sorted(criteria, sortingDirection(direction, defaultDirection));
+    public static Sorting sorting(String criterion, String direction, boolean defaultDirection) {
+        return Sorting.sorted(criterion, sortingDirection(direction, defaultDirection));
     }
 
-    public static Sorting sorting(String criteria, String direction) {
-        return Sorting.sorted(criteria, sortingDirection(direction, false));
+    public static Sorting sorting(String criterion, String direction) {
+        return Sorting.sorted(criterion, sortingDirection(direction, false));
     }
 
-    public static Sorting sorting(String criteria, boolean ascending) {
-        return Sorting.sorted(criteria, ascending);
+    public static Sorting sorting(String criterion, boolean ascending) {
+        return Sorting.sorted(criterion, ascending);
     }
 
     public static Pagination pagination(int begin, int size) {

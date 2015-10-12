@@ -70,6 +70,4 @@
         <property name="noteFactory" ref="noteFactory"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
-
-    <bean id="jsonMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
 </beans>
