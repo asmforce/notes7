@@ -1,4 +1,5 @@
 <%@ page import="com.asmx.controllers.data.entities.MessageJson" %>
+<%@ page import="com.asmx.controllers.data.entities.GenericResponseJson" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -43,3 +44,28 @@
         <title><spring:message code="appname"/></title>
     </c:otherwise>
 </c:choose>
+
+<script type="text/javascript">
+    declaration('RESPONSE:SUCCESS', <%= GenericResponseJson.STATUS_SUCCESS %>);
+    declaration('RESPONSE:UNEXPECTED', <%= GenericResponseJson.STATUS_UNEXPECTED %>);
+    declaration('RESPONSE:UNAUTHORISED', <%= GenericResponseJson.STATUS_UNAUTHORISED %>);
+    declaration('RESPONSE:FORGED_REQUEST', <%= GenericResponseJson.STATUS_FORGED_REQUEST %>);
+
+    declaration('MESSAGE_CLASS:INFO', '<%= MessageJson.CLASS_INFO %>');
+    declaration('MESSAGE_CLASS:WARNING', '<%= MessageJson.CLASS_WARNING %>');
+    declaration('MESSAGE_CLASS:ERROR', '<%= MessageJson.CLASS_ERROR %>');
+
+    declaration('address:sign', '<spring:url javaScriptEscape="true" value="/sign"/>');
+    declaration('address:notes', '<spring:url javaScriptEscape="true" value="/notes"/>');
+
+    tr('error', '<spring:message code="error" javaScriptEscape="true"/>');
+    tr('error.unknown', '<spring:message code="error.unknown" javaScriptEscape="true"/>');
+    tr('error.unexpected', '<spring:message code="error.unexpected" javaScriptEscape="true"/>');
+    tr('error.network', '<spring:message code="error.network" javaScriptEscape="true"/>');
+    tr('error.data', '<spring:message code="error.data" javaScriptEscape="true"/>');
+    tr('error.forged_request', '<spring:message code="error.forged_request" javaScriptEscape="true"/>');
+    tr('error.form.field_required', '<spring:message code="error.form.field_required" javaScriptEscape="true"/>');
+
+    tr('sign.unauthorized.title', '<spring:message code="sign.unauthorized.title" javaScriptEscape="true"/>');
+    tr('sign.unauthorized', '<spring:message code="sign.unauthorized" javaScriptEscape="true"/>');
+</script>

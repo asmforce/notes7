@@ -35,15 +35,14 @@ public class UsersServiceSimple implements UsersService {
     private UsersDao usersDao;
     @Value("${users.salt}")
     private String salt;
-    @Value("${timestamp.pattern}")
-    private String timestampPattern;
 
     @Override
     public User authorize(String name, String password, HttpSession session) {
         User user = authorize(name, password);
         session.setAttribute(Constants.AUTHORIZED_USER, user);
-        session.setAttribute(Constants.AUTHORIZED_USER_LOCALE, Utils.getLocale(user));
-        session.setAttribute(Constants.AUTHORIZED_USER_TIMESTAMP_FORMAT, Utils.getTimestampFormat(user, timestampPattern));
+        if (user != null) {
+            session.setAttribute(Constants.AUTHORIZED_USER_LOCALE, Utils.getLocale(user));
+        }
         return user;
     }
 

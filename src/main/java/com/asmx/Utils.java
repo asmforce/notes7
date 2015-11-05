@@ -6,10 +6,8 @@ import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * User: asmforce
@@ -19,11 +17,11 @@ public final class Utils {
     private static final Logger logger = Logger.getLogger(Utils.class);
 
     public static User getAuthorizedUser(HttpSession session) {
-        return Utils.getSessionAttribute(session, Constants.AUTHORIZED_USER);
+        return Utils.getSessionAttribute(User.class, session, Constants.AUTHORIZED_USER);
     }
 
     public static Locale getLocale(HttpServletRequest request) {
-        Locale locale = Utils.getSessionAttribute(request.getSession(false), Constants.AUTHORIZED_USER_LOCALE);
+        Locale locale = Utils.getSessionAttribute(Locale.class, request.getSession(false), Constants.AUTHORIZED_USER_LOCALE);
         if (locale == null) {
             locale = request.getLocale();
         }
@@ -31,7 +29,7 @@ public final class Utils {
     }
 
     public static Locale getLocale(HttpSession session) {
-        Locale locale = Utils.getSessionAttribute(session, Constants.AUTHORIZED_USER_LOCALE);
+        Locale locale = Utils.getSessionAttribute(Locale.class, session, Constants.AUTHORIZED_USER_LOCALE);
         if (locale == null) {
             locale = Locale.getDefault();
         }
@@ -42,44 +40,26 @@ public final class Utils {
         return Locale.forLanguageTag(user.getLanguage());
     }
 
-    public static DateFormat getTimestampFormat(HttpSession session) {
-        DateFormat format = Utils.getSessionAttribute(session, Constants.AUTHORIZED_USER_TIMESTAMP_FORMAT);
-        if (format == null) {
-            format = new SimpleDateFormat(Constants.DEFAULT_TIMESTAMP_PATTERN);
-        }
-        return format;
-    }
-
-    public static DateFormat getTimestampFormat(User user, String pattern) {
-        DateFormat format = null;
-
+    public static String getTimestampPattern(String pattern) {
         if (StringUtils.isNotBlank(pattern)) {
             try {
-                format = new SimpleDateFormat(pattern);
+                new SimpleDateFormat(pattern);
+                return pattern;
             } catch (IllegalArgumentException e) {
                 logger.error("Configured invalid timestamp pattern: `" + pattern + "`, falling back to the default one");
             }
         }
-
-        if (format == null) {
-            format = new SimpleDateFormat(Constants.DEFAULT_TIMESTAMP_PATTERN);
-        }
-
-        if (user != null) {
-            format.setTimeZone(TimeZone.getTimeZone(user.getTimezone()));
-        }
-
-        return format;
+        return Constants.DEFAULT_TIMESTAMP_PATTERN;
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T getSessionAttribute(HttpSession session, String attribute) {
+    private static <T> T getSessionAttribute(Class<T> cls, HttpSession session, String attribute) {
         T value = null;
         try {
             if (session == null) {
                 logger.debug("session == null");
             } else {
-                value = (T) session.getAttribute(attribute);
+                value = cls.cast(session.getAttribute(attribute));
             }
         } catch (ClassCastException e) {
             logger.error("Cannot cast session attribute `" + attribute + "`, type is unexpected", e);

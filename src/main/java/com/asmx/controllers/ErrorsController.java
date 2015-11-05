@@ -97,7 +97,8 @@ public class ErrorsController extends ControllerBase implements MessageSourceAwa
         response.addMessage(new MessageJson(
                 status.getReasonPhrase(),
                 messageSource.getMessage("error.unexpected", null, locale),
-                MessageJson.CLASS_ERROR
+                MessageJson.CLASS_ERROR,
+                "unexpected"
         ));
         return response;
     }
@@ -109,7 +110,7 @@ public class ErrorsController extends ControllerBase implements MessageSourceAwa
                 messageSource.getMessage("error.forged_request", null, locale),
                 messageSource.getMessage("error", null, locale),
                 MessageJson.CLASS_ERROR,
-                MessageJson.ERROR_ID_CLIENT_SERVER
+                "forged"
         ));
         return response;
     }

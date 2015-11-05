@@ -13,8 +13,6 @@ public class MessageJson {
     public static final String CLASS_WARNING = "warning";
     public static final String CLASS_ERROR = "negative";
 
-    public static final String ERROR_ID_CLIENT_SERVER = "client-server";
-
     private String title;
     private String message;
     private String classes;

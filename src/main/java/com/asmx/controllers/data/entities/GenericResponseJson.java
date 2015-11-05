@@ -19,7 +19,6 @@ public class GenericResponseJson {
 
     private Integer statusCode;
     private List<MessageJson> messages;
-    private String redirection;
 
     @SuppressWarnings("unused")
     public Integer getStatusCode() {
@@ -44,14 +43,5 @@ public class GenericResponseJson {
             messages = new ArrayList<>();
         }
         messages.add(message);
-    }
-
-    @SuppressWarnings("unused")
-    public String getRedirection() {
-        return redirection;
-    }
-
-    public void setRedirection(String redirection) {
-        this.redirection = redirection;
     }
 }
