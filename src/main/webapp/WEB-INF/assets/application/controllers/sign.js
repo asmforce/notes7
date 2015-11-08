@@ -39,7 +39,7 @@ ASMX.Binding.new('controller:sign', function($form) {
                     switch (data.statusCode) {
                         case declaration('RESPONSE:SUCCESS'):
                             ASMX.Storage.set('TIMESTAMP_PATTERN', data.timestampPattern);
-                            location.href = declaration('address:notes');
+                            ASMX.Location.assign(declaration('address:notes'));
                             break;
 
                         case declaration('RESPONSE:UNAUTHORISED'):

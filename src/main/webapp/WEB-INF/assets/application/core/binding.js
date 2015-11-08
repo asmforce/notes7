@@ -65,7 +65,7 @@
     };
 
     Binding.do = function($scope) {
-        $scope = $scope || $(document);
+        $scope = $scope || ASMX.Doc;
         $.each(Object.keys(map), function(index, name) {
             map[name]($scope);
         });

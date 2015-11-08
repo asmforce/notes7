@@ -1,4 +1,7 @@
 var ASMX = {
+    Doc: $(window.document),
+    Location: window.location,
+    Navigation: window.history,
     Fn: {},
     Ajax: {}
 };
@@ -205,7 +208,7 @@ window.ASMX = ASMX;
         }
     };
     Binding.do = function($scope) {
-        $scope = $scope || $(document);
+        $scope = $scope || ASMX.Doc;
         $.each(Object.keys(map), function(index, name) {
             map[name]($scope);
         });
@@ -334,7 +337,7 @@ ASMX.Binding.new('controller:sign', function($form) {
                     switch (data.statusCode) {
                       case declaration('RESPONSE:SUCCESS'):
                         ASMX.Storage.set('TIMESTAMP_PATTERN', data.timestampPattern);
-                        location.href = declaration('address:notes');
+                        location.assign(declaration('address:notes'));
                         break;
 
                       case declaration('RESPONSE:UNAUTHORISED'):
