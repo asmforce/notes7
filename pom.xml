@@ -120,6 +120,16 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <!-- Gulp is only required to compile assets on the building stage -->
+                    <warSourceExcludes>WEB-INF/assets/node_modules/</warSourceExcludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>

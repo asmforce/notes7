@@ -9,23 +9,31 @@ var ASMX = {
 window.ASMX = ASMX;
 
 (function() {
-    function HashMap(m) {
+    function createHashMap(m) {
         var map = m || {};
         return function(k, v) {
+            var res;
             if (arguments.length == 1) {
-                return map[k];
+                res = map[k];
+                if (res instanceof Function) {
+                    res = res(k);
+                    map[k] = res;
+                }
             } else if (arguments.length > 1) {
-                var ex = map[k];
+                res = map[k];
                 map[k] = v;
-                return ex;
+                if (res instanceof Function) {
+                    res = res(k);
+                }
             }
+            return res;
         };
     }
     var declarations = {};
-    window.declaration = new HashMap(declarations);
+    window.declaration = createHashMap(declarations);
     var translations = {};
-    window.tr = new HashMap(translations);
-    ASMX.HashMap = HashMap;
+    window.tr = createHashMap(translations);
+    ASMX.Fn.createHashMap = createHashMap;
 })();
 
 (function() {
@@ -75,23 +83,29 @@ window.ASMX = ASMX;
 })();
 
 (function() {
-    declaration('MESSAGE:DATA_PROCESSING_ERROR', {
-        title: tr('error'),
-        message: tr('error.data'),
-        classes: declaration('MESSAGE_CLASS:ERROR'),
-        id: 'client-server'
+    declaration('MESSAGE:DATA_PROCESSING_ERROR', function() {
+        return {
+            title: tr('error'),
+            message: tr('error.data'),
+            classes: declaration('MESSAGE_CLASS:ERROR'),
+            id: 'client-server'
+        };
     });
-    declaration('MESSAGE:UNEXPECTED_ERROR', {
-        title: tr('error'),
-        message: tr('error.unexpected'),
-        classes: declaration('MESSAGE_CLASS:ERROR'),
-        id: 'unexpected'
+    declaration('MESSAGE:UNEXPECTED_ERROR', function() {
+        return {
+            title: tr('error'),
+            message: tr('error.unexpected'),
+            classes: declaration('MESSAGE_CLASS:ERROR'),
+            id: 'unexpected'
+        };
     });
-    declaration('MESSAGE:FORGED_REQUEST_ERROR', {
-        title: tr('error'),
-        message: tr('error.forged_request'),
-        classes: declaration('MESSAGE_CLASS:ERROR'),
-        id: 'forged'
+    declaration('MESSAGE:FORGED_REQUEST_ERROR', function() {
+        return {
+            title: tr('error'),
+            message: tr('error.forged_request'),
+            classes: declaration('MESSAGE_CLASS:ERROR'),
+            id: 'forged'
+        };
     });
     function appendDetails(message, details) {
         if (details) {
@@ -337,7 +351,7 @@ ASMX.Binding.new('controller:sign', function($form) {
                     switch (data.statusCode) {
                       case declaration('RESPONSE:SUCCESS'):
                         ASMX.Storage.set('TIMESTAMP_PATTERN', data.timestampPattern);
-                        location.assign(declaration('address:notes'));
+                        ASMX.Location.assign(declaration('address:notes'));
                         break;
 
                       case declaration('RESPONSE:UNAUTHORISED'):

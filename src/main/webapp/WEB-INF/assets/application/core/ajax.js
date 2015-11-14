@@ -1,23 +1,29 @@
 (function() {
-    declaration('MESSAGE:DATA_PROCESSING_ERROR', {
-        title: tr('error'),
-        message: tr('error.data'),
-        classes: declaration('MESSAGE_CLASS:ERROR'),
-        id: 'client-server'
+    declaration('MESSAGE:DATA_PROCESSING_ERROR', function() {
+        return {
+            title: tr('error'),
+            message: tr('error.data'),
+            classes: declaration('MESSAGE_CLASS:ERROR'),
+            id: 'client-server'
+        };
     });
 
-    declaration('MESSAGE:UNEXPECTED_ERROR', {
-        title: tr('error'),
-        message: tr('error.unexpected'),
-        classes: declaration('MESSAGE_CLASS:ERROR'),
-        id: 'unexpected'
+    declaration('MESSAGE:UNEXPECTED_ERROR', function() {
+        return {
+            title: tr('error'),
+            message: tr('error.unexpected'),
+            classes: declaration('MESSAGE_CLASS:ERROR'),
+            id: 'unexpected'
+        };
     });
 
-    declaration('MESSAGE:FORGED_REQUEST_ERROR', {
-        title: tr('error'),
-        message: tr('error.forged_request'),
-        classes: declaration('MESSAGE_CLASS:ERROR'),
-        id: 'forged'
+    declaration('MESSAGE:FORGED_REQUEST_ERROR', function() {
+        return {
+            title: tr('error'),
+            message: tr('error.forged_request'),
+            classes: declaration('MESSAGE_CLASS:ERROR'),
+            id: 'forged'
+        };
     });
 
     function appendDetails(message, details) {
