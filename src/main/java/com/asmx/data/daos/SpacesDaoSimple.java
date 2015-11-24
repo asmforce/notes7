@@ -45,7 +45,8 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
 
     @Override
     public List<Space> getSpaces(User user, Sorting sorting) {
-        assert user.getId() >= 0;
+        assert user != null;
+        assert user.getId() > 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
@@ -61,8 +62,9 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
 
     @Override
     public Space getSpace(User user, int id) {
+        assert user != null;
         assert user.getId() > 0;
-        assert id >= 0;
+        assert id > 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
@@ -89,10 +91,12 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
 
     @Override
     public boolean putSpace(User user, Space space) {
+        assert user != null;
         assert user.getId() > 0;
+        assert space != null;
         assert space.getId() >= 0;
         assert StringUtils.isNotBlank(space.getName());
-        assert space.getName().length() < Space.NAME_MAX_LENGTH;
+        assert StringUtils.length(space.getName()) < Space.NAME_MAX_LENGTH;
         assert space.getDescription() != null;
         assert space.getCreationTime() != null;
 

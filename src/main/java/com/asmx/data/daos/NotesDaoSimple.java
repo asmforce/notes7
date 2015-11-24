@@ -46,6 +46,7 @@ public class NotesDaoSimple extends Dao implements NotesDao {
 
     @Override
     public List<Note> getNotes(User user, Pagination pagination, Sorting sorting) {
+        assert user != null;
         assert user.getId() > 0;
         assert pagination != null;
 
@@ -69,8 +70,9 @@ public class NotesDaoSimple extends Dao implements NotesDao {
 
     @Override
     public List<Note> getSpaceNotes(User user, int spaceId, Pagination pagination, Sorting sorting) {
+        assert user != null;
         assert user.getId() > 0;
-        assert spaceId >= 0;
+        assert spaceId > 0;
         assert pagination != null;
 
         if (pagination.isEmpty()) {
@@ -95,6 +97,7 @@ public class NotesDaoSimple extends Dao implements NotesDao {
 
     @Override
     public List<Note> getFreeSpaceNotes(User user, Pagination pagination, Sorting sorting) {
+        assert user != null;
         assert user.getId() > 0;
         assert pagination != null;
 
@@ -120,8 +123,9 @@ public class NotesDaoSimple extends Dao implements NotesDao {
 
     @Override
     public List<Note> getChainNotes(User user, int chainId) {
+        assert user != null;
         assert user.getId() > 0;
-        assert chainId >= 0;
+        assert chainId > 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
@@ -137,8 +141,9 @@ public class NotesDaoSimple extends Dao implements NotesDao {
 
     @Override
     public Note getNote(User user, int id) {
+        assert user != null;
         assert user.getId() > 0;
-        assert id >= 0;
+        assert id > 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
@@ -161,7 +166,9 @@ public class NotesDaoSimple extends Dao implements NotesDao {
 
     @Override
     public boolean putNote(User user, Note note) {
+        assert user != null;
         assert user.getId() > 0;
+        assert note != null;
         assert note.getId() >= 0;
         assert note.getChainId() > 0;
         assert note.getText() != null;

@@ -29,11 +29,11 @@ public class UsersDaoSimple extends Dao implements UsersDao {
 
     @Override
     public User getUser(int id) {
-        assert id >= 0;
+        assert id > 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
-            List<User> users = template.query("SELECT id, name, key, language, timezone FROM users WHERE id = ?", userMapper, id);
+            List<User> users = template.query("SELECT * FROM users WHERE id = ?", userMapper, id);
             if (CollectionUtils.isEmpty(users)) {
                 logger.debug("A user #" + id + " not exists");
                 return null;
@@ -56,7 +56,7 @@ public class UsersDaoSimple extends Dao implements UsersDao {
 
         JdbcTemplate template = getJdbcTemplate();
         try {
-            List<User> users = template.query("SELECT id, name, key, language, timezone FROM users WHERE name = ?", userMapper, name);
+            List<User> users = template.query("SELECT * FROM users WHERE name = ?", userMapper, name);
             if (CollectionUtils.isEmpty(users)) {
                 logger.debug("A user `" + name + "` not exists");
                 return null;

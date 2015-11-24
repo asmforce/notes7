@@ -26,12 +26,13 @@ CREATE TABLE users (
 CREATE SEQUENCE space_seq;
 CREATE TABLE spaces (
   id INTEGER NOT NULL DEFAULT NEXTVAL('space_seq'),
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id INTEGER NOT NULL,
   name VARCHAR(100) NOT NULL,
   description TEXT NOT NULL,
-  creation_time TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  creation_time TIMESTAMPTZ NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE (user_id, name)
+  UNIQUE (user_id, name),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 
@@ -45,8 +46,9 @@ CREATE TABLE spaces (
 CREATE SEQUENCE chain_seq;
 CREATE TABLE chains (
   id INTEGER NOT NULL DEFAULT NEXTVAL('chain_seq'),
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  PRIMARY KEY (id)
+  user_id INTEGER NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 
@@ -55,10 +57,13 @@ CREATE TABLE chains (
 --
 
 CREATE TABLE chain_bindings (
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  space_id INTEGER NOT NULL REFERENCES spaces(id),
-  chain_id INTEGER NOT NULL REFERENCES chains(id),
-  UNIQUE (user_id, space_id, chain_id)
+  user_id INTEGER NOT NULL,
+  space_id INTEGER NOT NULL,
+  chain_id INTEGER NOT NULL,
+  UNIQUE (user_id, space_id, chain_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE,
+  FOREIGN KEY (chain_id) REFERENCES chains(id) ON DELETE CASCADE
 );
 
 
@@ -70,12 +75,14 @@ CREATE TABLE chain_bindings (
 CREATE SEQUENCE note_seq;
 CREATE TABLE notes (
   id INTEGER NOT NULL DEFAULT NEXTVAL('note_seq'),
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  chain_id INTEGER NOT NULL REFERENCES chains(id),
+  user_id INTEGER NOT NULL,
+  chain_id INTEGER NOT NULL,
   text TEXT NOT NULL,
   idea_time TIMESTAMPTZ NOT NULL,
   creation_time TIMESTAMPTZ NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (chain_id) REFERENCES chains(id) ON DELETE CASCADE
 );
 
 
@@ -85,10 +92,13 @@ CREATE TABLE notes (
 --
 
 CREATE TABLE note_relations (
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  source_id INTEGER NOT NULL REFERENCES notes(id),
-  target_id INTEGER NOT NULL REFERENCES notes(id),
-  UNIQUE (user_id, source_id, target_id)
+  user_id INTEGER NOT NULL,
+  source_id INTEGER NOT NULL,
+  target_id INTEGER NOT NULL,
+  UNIQUE (user_id, source_id, target_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (source_id) REFERENCES notes(id) ON DELETE CASCADE,
+  FOREIGN KEY (target_id) REFERENCES notes(id) ON DELETE CASCADE
 );
 
 
@@ -100,12 +110,14 @@ CREATE TABLE note_relations (
 CREATE SEQUENCE note_attachment_seq;
 CREATE TABLE note_attachments (
   id INTEGER NOT NULL DEFAULT NEXTVAL('note_attachment_seq'),
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  note_id INTEGER NOT NULL REFERENCES notes(id),
+  user_id INTEGER NOT NULL,
+  note_id INTEGER NOT NULL,
   text TEXT NOT NULL,
   comment TEXT NULL,
   time TIMESTAMPTZ NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE
 );
 
 
@@ -120,56 +132,75 @@ CREATE TABLE note_attachments (
 CREATE SEQUENCE note_change_seq;
 CREATE TABLE note_changes (
   id INTEGER NOT NULL DEFAULT NEXTVAL('note_change_seq'),
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  note_id INTEGER NOT NULL REFERENCES notes(id),
+  user_id INTEGER NOT NULL,
+  note_id INTEGER NOT NULL,
   idea_time TIMESTAMPTZ NOT NULL,
   change_time TIMESTAMPTZ NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE
 );
 
 
 --
--- Теги до ланцюжків.
+-- Теги та їх метадані.
 --
 
 CREATE SEQUENCE tag_seq;
 CREATE TABLE tags (
   id INTEGER NOT NULL DEFAULT NEXTVAL('tag_seq'),
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id INTEGER NOT NULL,
   name VARCHAR(100) NOT NULL,
   description TEXT NOT NULL,
   creation_time TIMESTAMPTZ NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE (user_id, name)
-);
-
-
-CREATE TABLE tag_bindings (
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  tag_id INTEGER NOT NULL REFERENCES tags(id),
-  note_id INTEGER NOT NULL REFERENCES notes(id),
-  UNIQUE (user_id, tag_id, note_id)
+  UNIQUE (user_id, name),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 
 --
--- Ключові слова до ланцюжків.
+-- Прив’язка тегів до ланцюжків.
+--
+
+CREATE TABLE tag_bindings (
+  user_id INTEGER NOT NULL,
+  tag_id INTEGER NOT NULL,
+  chain_id INTEGER NOT NULL,
+  UNIQUE (user_id, tag_id, chain_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
+  FOREIGN KEY (chain_id) REFERENCES chains(id) ON DELETE CASCADE
+);
+
+
+--
+-- Ключові слова та їх метадані.
 --
 
 
 CREATE SEQUENCE keyword_seq;
 CREATE TABLE keywords (
   id INTEGER NOT NULL DEFAULT NEXTVAL('keyword_seq'),
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id INTEGER NOT NULL,
   name VARCHAR(100) NOT NULL,
   creation_time TIMESTAMPTZ NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE (user_id, name)
+  UNIQUE (user_id, name),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+
+--
+-- Прив’язка ключових слів до ланцюжків.
+--
+
 CREATE TABLE keyword_bindings (
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  keyword_id INTEGER NOT NULL REFERENCES keywords(id),
-  note_id INTEGER NOT NULL REFERENCES notes(id),
-  UNIQUE (user_id, keyword_id, note_id)
+  user_id INTEGER NOT NULL,
+  keyword_id INTEGER NOT NULL,
+  chain_id INTEGER NOT NULL,
+  UNIQUE (user_id, keyword_id, chain_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (keyword_id) REFERENCES keywords(id) ON DELETE CASCADE,
+  FOREIGN KEY (chain_id) REFERENCES chains(id) ON DELETE CASCADE
 );
