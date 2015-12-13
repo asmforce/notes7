@@ -1,0 +1,8 @@
+*.iml
+/.idea/
+/target
+/lib/
+/logs/
+/src/main/webapp/WEB-INF/assets/node_modules/
+/src/main/resources/application.properties
+/src/test/resources/test.properties
