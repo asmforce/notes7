@@ -68,7 +68,7 @@ public class AttachmentsDaoSimple extends Dao implements AttachmentsDao {
                 ps.setInt(2, noteId);
                 ps.setString(3, attachment.getText());
                 ps.setString(4, attachment.getComment());
-                ps.setTimestamp(5, asTimestamp(attachment.getTime()));
+                ps.setTimestamp(5, DaoUtils.asTimestamp(attachment.getTime()));
                 return ps;
             }, keyHolder);
 
@@ -164,7 +164,7 @@ public class AttachmentsDaoSimple extends Dao implements AttachmentsDao {
             attachment.setId(row.getInt("id"));
             attachment.setText(row.getString("text"));
             attachment.setComment(row.getString("comment"));
-            attachment.setTime(asDate(row.getTimestamp("time")));
+            attachment.setTime(DaoUtils.asDate(row.getTimestamp("time")));
             return attachment;
         }
     }

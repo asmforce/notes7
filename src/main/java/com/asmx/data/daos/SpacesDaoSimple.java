@@ -106,7 +106,7 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
                 ps.setInt(1, user.getId());
                 ps.setString(2, space.getName());
                 ps.setString(3, space.getDescription());
-                ps.setTimestamp(4, asTimestamp(space.getCreationTime()));
+                ps.setTimestamp(4, DaoUtils.asTimestamp(space.getCreationTime()));
                 return ps;
             }, keyHolder);
 
@@ -207,7 +207,7 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
             space.setId(row.getInt("id"));
             space.setName(row.getString("name"));
             space.setDescription(row.getString("description"));
-            space.setCreationTime(asDate(row.getTimestamp("creation_time")));
+            space.setCreationTime(DaoUtils.asDate(row.getTimestamp("creation_time")));
             return space;
         }
     }

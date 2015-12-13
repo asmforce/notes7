@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,38 +17,13 @@ import java.util.Set;
  * User: asmforce
  * Timestamp: 05.05.15 23:08.
 **/
-@SuppressWarnings("unused")
 public class Dao {
     private static final Logger logger = Logger.getLogger(Dao.class);
 
-    private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
 
-    protected DataSource getDataSource() {
-        return dataSource;
-    }
-
     protected JdbcTemplate getJdbcTemplate() {
-        if (jdbcTemplate == null) {
-            jdbcTemplate = new JdbcTemplate(dataSource);
-        }
         return jdbcTemplate;
-    }
-
-    protected Timestamp asTimestamp(Date date) {
-        if (date == null) {
-            return null;
-        } else {
-            return new Timestamp(date.getTime());
-        }
-    }
-
-    protected Date asDate(Timestamp timestamp) {
-        if (timestamp == null) {
-            return null;
-        } else {
-            return new Date(timestamp.getTime());
-        }
     }
 
     protected String getPaginationClause(Pagination pagination) {
@@ -108,6 +81,6 @@ public class Dao {
 
     @Required
     public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 }

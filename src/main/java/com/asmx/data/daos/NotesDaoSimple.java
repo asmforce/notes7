@@ -334,8 +334,8 @@ public class NotesDaoSimple extends Dao implements NotesDao {
                 ps.setInt(1, user.getId());
                 ps.setInt(2, note.getChainId());
                 ps.setString(3, note.getText());
-                ps.setTimestamp(4, asTimestamp(note.getIdeaTime()));
-                ps.setTimestamp(5, asTimestamp(note.getCreationTime()));
+                ps.setTimestamp(4, DaoUtils.asTimestamp(note.getIdeaTime()));
+                ps.setTimestamp(5, DaoUtils.asTimestamp(note.getCreationTime()));
                 return ps;
             }, keyHolder);
 
@@ -394,8 +394,8 @@ public class NotesDaoSimple extends Dao implements NotesDao {
 
                 ps.setInt(1, user.getId());
                 ps.setInt(2, change.getNoteId());
-                ps.setTimestamp(3, asTimestamp(change.getIdeaTime()));
-                ps.setTimestamp(4, asTimestamp(change.getChangeTime()));
+                ps.setTimestamp(3, DaoUtils.asTimestamp(change.getIdeaTime()));
+                ps.setTimestamp(4, DaoUtils.asTimestamp(change.getChangeTime()));
 
                 return ps;
             });
@@ -450,8 +450,8 @@ public class NotesDaoSimple extends Dao implements NotesDao {
             note.setId(row.getInt("id"));
             note.setChainId(row.getInt("chain_id"));
             note.setText(row.getString("text"));
-            note.setIdeaTime(asDate(row.getTimestamp("idea_time")));
-            note.setCreationTime(asDate(row.getTimestamp("creation_time")));
+            note.setIdeaTime(DaoUtils.asDate(row.getTimestamp("idea_time")));
+            note.setCreationTime(DaoUtils.asDate(row.getTimestamp("creation_time")));
             return note;
         }
     }
@@ -461,8 +461,8 @@ public class NotesDaoSimple extends Dao implements NotesDao {
         public ChangeRecord mapRow(ResultSet row, int index) throws SQLException {
             ChangeRecord change = changeRecordFactory.create();
             change.setNoteId(row.getInt("note_id"));
-            change.setIdeaTime(asDate(row.getTimestamp("idea_time")));
-            change.setChangeTime(asDate(row.getTimestamp("change_time")));
+            change.setIdeaTime(DaoUtils.asDate(row.getTimestamp("idea_time")));
+            change.setChangeTime(DaoUtils.asDate(row.getTimestamp("change_time")));
             return change;
         }
     }
