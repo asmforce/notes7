@@ -1,0 +1,4 @@
+junit.driverClassName =org.postgresql.Driver
+junit.url =jdbc:postgresql://localhost:5432/notes7
+junit.username =notes7
+junit.password =notes7
