@@ -58,6 +58,12 @@
 
     <!-- Data management -->
 
+    <import resource="datasource.xml"/>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
     <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetClass" value="com.asmx.data.Transaction"/>
         <property name="targetMethod" value="setTransactionManager"/>
