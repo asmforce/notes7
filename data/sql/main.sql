@@ -5,11 +5,12 @@
 CREATE SEQUENCE users_seq;
 CREATE TABLE users (
   id INTEGER NOT NULL DEFAULT NEXTVAL('users_seq'),
-  name VARCHAR(50) UNIQUE NOT NULL,
+  name VARCHAR(50) NOT NULL,
   key VARCHAR(256) NOT NULL,
   language VARCHAR(2) NOT NULL,
   timezone VARCHAR(50) NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  UNIQUE (name)
 );
 
 
@@ -21,6 +22,7 @@ CREATE TABLE users (
 -- Тека (категорія, простір).
 -- Призначена для впорядкування ланцюжків.
 -- Один ланцюжок може належати одночасно до різних тек.
+-- Назва теки є унікальною — користувач не може створити кілька тек з одним іменем.
 --
 
 CREATE SEQUENCE space_seq;
@@ -102,6 +104,24 @@ CREATE TABLE note_relations (
 );
 
 
+------------------------------------------------------------------------------------------------------------------------
+-- EXTRA DATA
+------------------------------------------------------------------------------------------------------------------------
+
+--
+-- Інформація про час редагування нотатки.
+--
+
+CREATE TABLE note_changes (
+  user_id INTEGER NOT NULL,
+  note_id INTEGER NOT NULL,
+  idea_time TIMESTAMPTZ NOT NULL,
+  change_time TIMESTAMPTZ NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE
+);
+
+
 --
 -- Вкладення. Прив’язане до нотатки (не до ланцюжка).
 -- Має дату, текстове тіло (власне, вкладення) та коментар.
@@ -115,27 +135,6 @@ CREATE TABLE note_attachments (
   text TEXT NOT NULL,
   comment TEXT NULL,
   time TIMESTAMPTZ NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE
-);
-
-
-------------------------------------------------------------------------------------------------------------------------
--- NOTES METADATA
-------------------------------------------------------------------------------------------------------------------------
-
---
--- Інформація про час редагування нотатки.
---
-
-CREATE SEQUENCE note_change_seq;
-CREATE TABLE note_changes (
-  id INTEGER NOT NULL DEFAULT NEXTVAL('note_change_seq'),
-  user_id INTEGER NOT NULL,
-  note_id INTEGER NOT NULL,
-  idea_time TIMESTAMPTZ NOT NULL,
-  change_time TIMESTAMPTZ NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE

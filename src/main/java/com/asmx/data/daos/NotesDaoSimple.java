@@ -2,6 +2,9 @@ package com.asmx.data.daos;
 
 import com.asmx.data.Pagination;
 import com.asmx.data.Sorting;
+import com.asmx.data.daos.errors.DataManagementException;
+import com.asmx.data.entities.ChangeRecord;
+import com.asmx.data.entities.ChangeRecordFactory;
 import com.asmx.data.entities.Note;
 import com.asmx.data.entities.NoteFactory;
 import com.asmx.data.entities.User;
@@ -35,6 +38,9 @@ public class NotesDaoSimple extends Dao implements NotesDao {
     private NoteFactory noteFactory;
     private NoteMapper noteMapper = new NoteMapper();
 
+    private ChangeRecordFactory changeRecordFactory;
+    private ChangeMapper changeMapper = new ChangeMapper();
+
     @Override
     protected Map<String, String> getExpectedSortingCriteriaMap() {
         return new HashMap<String, String>() {{
@@ -42,6 +48,108 @@ public class NotesDaoSimple extends Dao implements NotesDao {
             put("idea_time", "n.idea_time");
             put("creation_time", "n.creation_time");
         }};
+    }
+
+    @Override
+    public boolean checkChainExists(User user, int chainId) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert chainId > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            return template.queryForObject(
+                "SELECT COUNT(*) > 0 FROM chains WHERE user_id = ? AND id = ?",
+                Boolean.class,
+                user.getId(), chainId
+            );
+        } catch (DataAccessException e) {
+            logger.error("Unable to check a chain #" + chainId + " for existence (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public int createChain(User user) {
+        assert user != null;
+        assert user.getId() > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+            template.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO chains (id, user_id) VALUES (DEFAULT , ?)",
+                    new String[]{"id"}
+                );
+                ps.setInt(1, user.getId());
+                return ps;
+            }, keyHolder);
+
+            Number newId = keyHolder.getKey();
+            return newId.intValue();
+        } catch (DataAccessException e) {
+            logger.error("Unable to create a chain (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public boolean checkChainBindingExists(User user, int chainId, int spaceId) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert chainId > 0;
+        assert spaceId > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            return template.queryForObject(
+                "SELECT COUNT(*) > 0 FROM chain_bindings WHERE user_id = ? AND chain_id = ? AND space_id",
+                Boolean.class,
+                user.getId(), chainId, spaceId
+            );
+        } catch (DataAccessException e) {
+            logger.error("Unable to check a chain #" + chainId + " binding to space #" + spaceId + " for existence (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public void createChainBinding(User user, int chainId, int spaceId) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert chainId > 0;
+        assert spaceId > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            template.update(
+                "INSERT INTO chain_bindings (user_id, space_id, chain_id) VALUES (?, ?, ?)",
+                user.getId(), spaceId, chainId
+            );
+        } catch (DataAccessException e) {
+            logger.error("Unable to create a chain #" + chainId + " binding to space #" + spaceId + " (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public boolean checkNoteExists(User user, int noteId) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert noteId > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            return template.queryForObject(
+                "SELECT COUNT(*) > 0 FROM notes WHERE user_id = ? AND id = ?",
+                Boolean.class,
+                user.getId(), noteId
+            );
+        } catch (DataAccessException e) {
+            logger.error("Unable to check a note #" + noteId + " for existence (user #" + user.getId() + ")");
+            throw e;
+        }
     }
 
     @Override
@@ -57,10 +165,10 @@ public class NotesDaoSimple extends Dao implements NotesDao {
         JdbcTemplate template = getJdbcTemplate();
         try {
             return template.query(
-                    "SELECT * FROM notes n WHERE user_id = ? " +
-                    getSortingClause(sorting, DEFAULT_SORTING) + " " +
-                    getPaginationClause(pagination),
-                    noteMapper, user.getId()
+                "SELECT * FROM notes n WHERE user_id = ? " +
+                getSortingClause(sorting, DEFAULT_SORTING) + " " +
+                getPaginationClause(pagination),
+                noteMapper, user.getId()
             );
         } catch (DataAccessException e) {
             logger.error("Unable to get notes (user #" + user.getId() + ")");
@@ -82,15 +190,15 @@ public class NotesDaoSimple extends Dao implements NotesDao {
         JdbcTemplate template = getJdbcTemplate();
         try {
             return template.query(
-                    "SELECT n.* FROM notes n " +
-                    "JOIN chain_bindings cb ON n.chain_id = cb.chain_id AND n.user_id = cb.user_id " +
-                    "WHERE n.user_id = ? AND cb.space_id = ? " +
-                    getSortingClause(sorting, DEFAULT_SORTING) + " " +
-                    getPaginationClause(pagination),
-                    noteMapper, user.getId(), spaceId
+                "SELECT n.* FROM notes n " +
+                "JOIN chain_bindings cb ON n.chain_id = cb.chain_id AND n.user_id = cb.user_id " +
+                "WHERE n.user_id = ? AND cb.space_id = ? " +
+                getSortingClause(sorting, DEFAULT_SORTING) + " " +
+                getPaginationClause(pagination),
+                noteMapper, user.getId(), spaceId
             );
         } catch (DataAccessException e) {
-            logger.error("Unable to get notes (user #" + user.getId() + ", space #" + spaceId + ")");
+            logger.error("Unable to get notes (space #" + spaceId + ", user #" + user.getId() + ")");
             throw e;
         }
     }
@@ -108,12 +216,11 @@ public class NotesDaoSimple extends Dao implements NotesDao {
         JdbcTemplate template = getJdbcTemplate();
         try {
             return template.query(
-                    "SELECT n.* FROM notes n " +
-                    "LEFT OUTER JOIN chain_bindings cb ON n.chain_id = cb.chain_id " +
-                    "WHERE n.user_id = ? AND cb.space_id IS NULL " +
-                    getSortingClause(sorting, DEFAULT_SORTING) + " " +
-                    getPaginationClause(pagination),
-                    noteMapper, user.getId()
+                "SELECT n.* FROM notes n LEFT OUTER JOIN chain_bindings cb ON n.chain_id = cb.chain_id " +
+                "WHERE n.user_id = ? AND cb.space_id IS NULL " +
+                getSortingClause(sorting, DEFAULT_SORTING) + " " +
+                getPaginationClause(pagination),
+                noteMapper, user.getId()
             );
         } catch (DataAccessException e) {
             logger.error("Unable to get notes (user #" + user.getId() + ", not bounded to a space)");
@@ -129,9 +236,10 @@ public class NotesDaoSimple extends Dao implements NotesDao {
 
         JdbcTemplate template = getJdbcTemplate();
         try {
-            return template.query("SELECT * FROM notes WHERE user_id = ? AND chain_id = ? " +
-                    getSortingClause(DEFAULT_CHAIN_SORTING),
-                    noteMapper, user.getId(), chainId
+            return template.query(
+                "SELECT * FROM notes n WHERE user_id = ? AND chain_id = ? " +
+                getSortingClause(DEFAULT_CHAIN_SORTING),
+                noteMapper, user.getId(), chainId
             );
         } catch (DataAccessException e) {
             logger.error("Unable to get notes (chain #" + chainId + ", user #" + user.getId() + ")");
@@ -140,88 +248,199 @@ public class NotesDaoSimple extends Dao implements NotesDao {
     }
 
     @Override
-    public Note getNote(User user, int id) {
+    public List<Note> getRelatedNotes(User user, RelationType relationType, int id, Pagination pagination, Sorting sorting) {
         assert user != null;
         assert user.getId() > 0;
+        assert relationType != null;
         assert id > 0;
+        assert pagination != null;
+
+        if (pagination.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        try {
+            switch (relationType) {
+            case SOURCE:
+                return getNotesByIds(
+                    "SELECT target_id FROM note_relations WHERE source_id = ?",
+                    user, pagination, sorting, id
+                );
+
+            case TARGET:
+                return getNotesByIds(
+                    "SELECT source_id FROM note_relations WHERE target_id = ?",
+                    user, pagination, sorting, id
+                );
+
+            case ANY:
+            default:
+                return getNotesByIds(
+                    "SELECT CASE WHEN source_id = ? THEN target_id ELSE source_id END FROM note_relations " +
+                    "WHERE ? IN (source_id, target_id)",
+                    user, pagination, sorting, id, id
+                );
+            }
+        } catch (DataAccessException e) {
+            logger.error("Unable to get related notes (note #" + id + ", relation " + relationType.name() + ", user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public Note getNote(User user, int noteId) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert noteId > 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
-            List<Note> notes = template.query("SELECT * FROM notes WHERE user_id = ? AND id = ?", noteMapper, user.getId(), id);
+            List<Note> notes = template.query("SELECT * FROM notes WHERE user_id = ? AND id = ?", noteMapper, user.getId(), noteId);
             if (CollectionUtils.isEmpty(notes)) {
-                logger.debug("A note #" + id + " (user #" + user.getId() + ") not exists");
+                logger.debug("A note #" + noteId + " (user #" + user.getId() + ") not exists");
             } else {
                 if (notes.size() == 1) {
                     return notes.get(0);
                 } else {
-                    throw new DataIntegrityViolationException("A note #" + id + " (user #" + user.getId() + ") duplicated " + notes.size() + " time(s)");
+                    throw new DataIntegrityViolationException("A note #" + noteId + " (user #" + user.getId() + ") duplicated " + notes.size() + " time(s)");
                 }
             }
         } catch (DataAccessException e) {
-            logger.error("Unable to get a note #" + id + " (user #" + user.getId() + ")");
+            logger.error("Unable to get a note #" + noteId + " (user #" + user.getId() + ")");
             throw e;
         }
         return null;
     }
 
     @Override
-    public boolean putNote(User user, Note note) {
+    public int createNote(User user, Note note) {
         assert user != null;
         assert user.getId() > 0;
         assert note != null;
-        assert note.getId() >= 0;
         assert note.getChainId() > 0;
         assert note.getText() != null;
         assert note.getIdeaTime() != null;
         assert note.getCreationTime() != null;
 
         JdbcTemplate template = getJdbcTemplate();
-        if (note.getId() == GENERATE_ID) {
-            try {
-                GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-                template.update(connection -> {
-                    PreparedStatement ps = connection.prepareStatement(
-                            "INSERT INTO notes (id, user_id, chain_id, text, idea_time, creation_time) VALUES (DEFAULT, ?, ?, ?, ?, ?)",
-                            new String[]{"id"}
-                    );
-                    ps.setInt(1, user.getId());
-                    ps.setInt(2, note.getChainId());
-                    ps.setString(3, note.getText());
-                    ps.setTimestamp(4, asTimestamp(note.getIdeaTime()));
-                    ps.setTimestamp(5, asTimestamp(note.getCreationTime()));
-                    return ps;
-                }, keyHolder);
+        try {
+            GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+            template.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO notes (id, user_id, chain_id, text, idea_time, creation_time) " +
+                    "VALUES (DEFAULT, ?, ?, ?, ?, ?)",
+                    new String[]{"id"}
+                );
+                ps.setInt(1, user.getId());
+                ps.setInt(2, note.getChainId());
+                ps.setString(3, note.getText());
+                ps.setTimestamp(4, asTimestamp(note.getIdeaTime()));
+                ps.setTimestamp(5, asTimestamp(note.getCreationTime()));
+                return ps;
+            }, keyHolder);
 
-                Number newId = keyHolder.getKey();
-                note.setId(newId.intValue());
-                return true;
-            } catch (DataAccessException e) {
-                logger.error("Unable to insert note (chain #" + note.getChainId() + ", user #" + user.getId() + ")");
-                throw e;
+            int id = keyHolder.getKey().intValue();
+            note.setId(id);
+
+            return id;
+        } catch (DataAccessException e) {
+            logger.error("Unable to create a note (chain #" + note.getChainId() + ", user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public void changeNote(User user, int noteId, String text) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert noteId > 0;
+        assert text != null;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            int rows = template.update(
+                "UPDATE notes SET text = ? WHERE user_id = ? AND id = ?",
+                text, user.getId(), noteId
+            );
+
+            if (rows > 1) {
+                throw new DataIntegrityViolationException("Multiple rows updated using a unique id");
             }
-        } else {
-            try {
-                int rows = template.update(
-                        "UPDATE notes SET chain_id = ?, text = ?, idea_time = ?, creation_time = ? WHERE id = ? AND user_id = ?",
-                        note.getChainId(),
-                        note.getText(),
-                        note.getIdeaTime(),
-                        note.getCreationTime(),
-                        note.getId(),
-                        user.getId()
+            if (rows < 1) {
+                throw new DataManagementException("The referenced note does not exist");
+            }
+        } catch (DataAccessException e) {
+            logger.error("Unable to update a note #" + noteId + " (chain #" + noteId + ", user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public void createChangeRecord(User user, ChangeRecord change) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert change != null;
+        assert change.getNoteId() > 0;
+        assert change.getIdeaTime() != null;
+        assert change.getChangeTime() != null;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            template.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO note_changes (user_id, note_id, idea_time, change_time) VALUES (?, ?, ?, ?)",
+                    new String[]{"id"}
                 );
 
-                return rows >= 1;
-            } catch (DataAccessException e) {
-                logger.error("Unable to update note #" + note.getId() + " (chain #" + note.getChainId() + ", user #" + user.getId() + ")");
-                throw e;
-            }
+                ps.setInt(1, user.getId());
+                ps.setInt(2, change.getNoteId());
+                ps.setTimestamp(3, asTimestamp(change.getIdeaTime()));
+                ps.setTimestamp(4, asTimestamp(change.getChangeTime()));
+
+                return ps;
+            });
+        } catch (DataAccessException e) {
+            logger.error("Unable to create a change record for note #" + change.getNoteId() + " (user #" + user.getId() + ")");
+            throw e;
         }
+    }
+
+    @Override
+    public List<ChangeRecord> getChangeRecords(User user, int noteId) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert noteId > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            return template.query(
+                "SELECT * FROM note_changes WHERE user_id = ? AND note_id = ? " +
+                "ORDER BY idea_time DESC",
+                changeMapper, user.getId(), noteId
+            );
+        } catch (DataAccessException e) {
+            logger.error("Unable to get a change history for note #" + noteId + " (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    protected List<Note> getNotesByIds(String sqlSelectIds, User user, Pagination pagination, Sorting sorting, Object... parameters) {
+        return getJdbcTemplate().query(
+            "SELECT n.* FROM notes n WHERE user_id = ? AND id IN (" + sqlSelectIds + ") " +
+            getSortingClause(sorting, DEFAULT_SORTING) + " " +
+            getPaginationClause(pagination),
+            noteMapper, user.getId(), parameters
+        );
     }
 
     @Required
     public void setNoteFactory(NoteFactory noteFactory) {
         this.noteFactory = noteFactory;
+    }
+
+    @Required
+    public void setChangeRecordFactory(ChangeRecordFactory changeRecordFactory) {
+        this.changeRecordFactory = changeRecordFactory;
     }
 
     protected class NoteMapper implements RowMapper<Note> {
@@ -234,6 +453,17 @@ public class NotesDaoSimple extends Dao implements NotesDao {
             note.setIdeaTime(asDate(row.getTimestamp("idea_time")));
             note.setCreationTime(asDate(row.getTimestamp("creation_time")));
             return note;
+        }
+    }
+
+    protected class ChangeMapper implements RowMapper<ChangeRecord> {
+        @Override
+        public ChangeRecord mapRow(ResultSet row, int index) throws SQLException {
+            ChangeRecord change = changeRecordFactory.create();
+            change.setNoteId(row.getInt("note_id"));
+            change.setIdeaTime(asDate(row.getTimestamp("idea_time")));
+            change.setChangeTime(asDate(row.getTimestamp("change_time")));
+            return change;
         }
     }
 }

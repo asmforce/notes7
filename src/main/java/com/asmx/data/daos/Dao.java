@@ -23,8 +23,6 @@ import java.util.Set;
 public class Dao {
     private static final Logger logger = Logger.getLogger(Dao.class);
 
-    public static final int GENERATE_ID = 0;
-
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
 
@@ -40,11 +38,19 @@ public class Dao {
     }
 
     protected Timestamp asTimestamp(Date date) {
-        return new Timestamp(date.getTime());
+        if (date == null) {
+            return null;
+        } else {
+            return new Timestamp(date.getTime());
+        }
     }
 
     protected Date asDate(Timestamp timestamp) {
-        return new Date(timestamp.getTime());
+        if (timestamp == null) {
+            return null;
+        } else {
+            return new Date(timestamp.getTime());
+        }
     }
 
     protected String getPaginationClause(Pagination pagination) {

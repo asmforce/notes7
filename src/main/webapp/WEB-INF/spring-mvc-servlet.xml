@@ -55,6 +55,7 @@
     <bean name="userFactory" class="com.asmx.data.entities.UserSimpleFactory"/>
     <bean name="spaceFactory" class="com.asmx.data.entities.SpaceSimpleFactory"/>
     <bean name="noteFactory" class="com.asmx.data.entities.NoteSimpleFactory"/>
+    <bean name="changeRecordFactory" class="com.asmx.data.entities.ChangeRecordSimpleFactory"/>
 
     <bean name="usersDao" class="com.asmx.data.daos.UsersDaoSimple">
         <property name="userFactory" ref="userFactory"/>
@@ -68,6 +69,7 @@
 
     <bean name="notesDao" class="com.asmx.data.daos.NotesDaoSimple">
         <property name="noteFactory" ref="noteFactory"/>
+        <property name="changeRecordFactory" ref="changeRecordFactory"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
 </beans>
