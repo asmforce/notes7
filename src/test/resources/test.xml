@@ -11,4 +11,14 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <bean id="usersUtils" class="com.asmx.data.daos.UsersUtils">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+        <property name="userFactory" ref="userFactory"/>
+    </bean>
+
+    <bean id="spacesUtils" class="com.asmx.data.daos.SpacesUtils">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+        <property name="spaceFactory" ref="spaceFactory"/>
+    </bean>
+
 </beans>
