@@ -3,11 +3,35 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<c:url var="src" value="/assets/vendor/jquery-2.1.4.js"/>
+<c:set var="useMinLibs" value="false"/>
+
+<c:choose>
+    <c:when test="${useMinLibs}">
+        <c:url var="src" value="/assets/vendor/jquery-2.1.4.min.js"/>
+    </c:when>
+    <c:otherwise>
+        <c:url var="src" value="/assets/vendor/jquery-2.1.4.js"/>
+    </c:otherwise>
+</c:choose>
 <script src="${src}"></script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.0.8/semantic.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.0.8/semantic.js"></script>
+<c:choose>
+    <c:when test="${useMinLibs}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.min.css">
+    </c:when>
+    <c:otherwise>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.css">
+    </c:otherwise>
+</c:choose>
+
+<c:choose>
+    <c:when test="${useMinLibs}">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.min.js"></script>
+    </c:when>
+    <c:otherwise>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.js"></script>
+    </c:otherwise>
+</c:choose>
 
 <c:url var="src" value="/assets/vendor/jquery-dateFormat.js"/>
 <script src="${src}"></script>
@@ -18,7 +42,14 @@
 <c:url var="src" value="/assets/vendor/nprogress.css"/>
 <link rel="stylesheet" href="${src}">
 
-<c:url var="src" value="/assets/vendor/jquery.jqote2.js"/>
+<c:choose>
+    <c:when test="${useMinLibs}">
+        <c:url var="src" value="/assets/vendor/jquery.jqote2.min.js"/>
+    </c:when>
+    <c:otherwise>
+        <c:url var="src" value="/assets/vendor/jquery.jqote2.js"/>
+    </c:otherwise>
+</c:choose>
 <script src="${src}"></script>
 
 <c:url var="src" value="/assets/favicon.png"/>
