@@ -25,4 +25,8 @@
         <property name="spaceFactory" ref="spaceFactory"/>
     </bean>
 
+    <bean id="chainsUtils" class="com.asmx.data.daos.ChainsUtils">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+
 </beans>

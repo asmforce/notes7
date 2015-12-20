@@ -30,6 +30,8 @@ public class SpacesDaoTest extends DaoTestBase {
     private UsersUtils usersUtils;
     @Resource
     private SpacesUtils spacesUtils;
+    @Resource
+    private ChainsUtils chainsUtils;
 
     /**
      * See {@link SpacesDao#checkSpaceExists(User, int)}.
@@ -295,6 +297,189 @@ public class SpacesDaoTest extends DaoTestBase {
                 Assert.assertEquals(names1.contains(name), spacesDao.checkNameInUse(user1, name));
                 Assert.assertEquals(names2.contains(name), spacesDao.checkNameInUse(user2, name));
                 Assert.assertFalse(spacesDao.checkNameInUse(user3, name));
+            }
+        }
+    }
+
+    /**
+     * See {@link SpacesDao#checkSpaceInUse(User, int)}.
+    **/
+    @Test
+    public void testInvalidArgumentsCheckSpaceInUse() {
+        final int USER_ID = 1234;
+        User user = usersUtils.generateInstance();
+        user.setId(USER_ID);
+        usersUtils.insert(user);
+
+        final int SPACE_ID1 = 123;
+        final Space space1 = spacesUtils.generateInstance();
+        space1.setId(SPACE_ID1);
+        spacesUtils.insert(space1, USER_ID);
+
+        final int SPACE_ID2 = 234;
+        final Space space2 = spacesUtils.generateInstance();
+        space2.setId(SPACE_ID2);
+        spacesUtils.insert(space2, USER_ID);
+
+        assertThrows("user is null", () -> spacesDao.checkSpaceInUse(null, SPACE_ID1));
+        assertThrows("user is null", () -> spacesDao.checkSpaceInUse(null, SPACE_ID2));
+
+        user.setId(0);
+        assertThrows("user.id <= 0", () -> spacesDao.checkSpaceInUse(user, SPACE_ID1));
+        assertThrows("user.id <= 0", () -> spacesDao.checkSpaceInUse(user, SPACE_ID2));
+        user.setId(-1);
+        assertThrows("user.id <= 0", () -> spacesDao.checkSpaceInUse(user, SPACE_ID1));
+        assertThrows("user.id <= 0", () -> spacesDao.checkSpaceInUse(user, SPACE_ID2));
+        user.setId(-123);
+        assertThrows("user.id <= 0", () -> spacesDao.checkSpaceInUse(user, SPACE_ID1));
+        assertThrows("user.id <= 0", () -> spacesDao.checkSpaceInUse(user, SPACE_ID2));
+
+        user.setId(USER_ID);
+
+        assertThrows("id <= 0", () -> spacesDao.checkSpaceInUse(user, 0));
+        assertThrows("id <= 0", () -> spacesDao.checkSpaceInUse(user, -1));
+        assertThrows("id <= 0", () -> spacesDao.checkSpaceInUse(user, -10));
+        assertThrows("id <= 0", () -> spacesDao.checkSpaceInUse(user, -123));
+
+        Assert.assertFalse(spacesDao.checkSpaceInUse(user, SPACE_ID1));
+        Assert.assertFalse(spacesDao.checkSpaceInUse(user, SPACE_ID2));
+    }
+
+    /**
+     * See {@link SpacesDao#checkSpaceInUse(User, int)}.
+    **/
+    @Test
+    public void testCheckSpaceInUse() {
+        final int USER_ID1 = 1234;
+        User user1 = usersUtils.generateInstanceWithUniqueName();
+        user1.setId(USER_ID1);
+        usersUtils.insert(user1);
+
+        final int USER_ID2 = 2345;
+        User user2 = usersUtils.generateInstanceWithUniqueName();
+        user2.setId(USER_ID2);
+        usersUtils.insert(user2);
+
+        final int SPACE_ID1 = 123;
+        final Space space1 = spacesUtils.generateInstanceWithUniqueName(0);
+        space1.setId(SPACE_ID1);
+        spacesUtils.insert(space1, USER_ID1);
+
+        final int SPACE_ID2 = 234;
+        final Space space2 = spacesUtils.generateInstanceWithUniqueName(0);
+        space2.setId(SPACE_ID2);
+        spacesUtils.insert(space2, USER_ID1);
+
+        final int SPACE_ID3 = 345;
+        final Space space3 = spacesUtils.generateInstanceWithUniqueName(0);
+        space3.setId(SPACE_ID3);
+        spacesUtils.insert(space3, USER_ID1);
+
+        final int SPACE_ID4 = 456;
+        final Space space4 = spacesUtils.generateInstanceWithUniqueName(0);
+        space4.setId(SPACE_ID4);
+        spacesUtils.insert(space4, USER_ID2);
+
+        final int SPACE_ID5 = 567;
+        final Space space5 = spacesUtils.generateInstanceWithUniqueName(0);
+        space5.setId(SPACE_ID5);
+        spacesUtils.insert(space5, USER_ID2);
+
+        final int SPACE_ID6 = 678;
+        final Space space6 = spacesUtils.generateInstanceWithUniqueName(0);
+        space6.setId(SPACE_ID6);
+        spacesUtils.insert(space6, USER_ID2);
+
+        final int SPACE_ID7 = 789;
+        final Space space7 = spacesUtils.generateInstanceWithUniqueName(0);
+        space7.setId(SPACE_ID7);
+        spacesUtils.insert(space7, USER_ID2);
+
+        Map<Integer, User> spacesOwnership = new HashMap<Integer, User>() {{
+            put(SPACE_ID1, user1);
+            put(SPACE_ID2, user1);
+            put(SPACE_ID3, user1);
+            put(SPACE_ID4, user2);
+            put(SPACE_ID5, user2);
+            put(SPACE_ID6, user2);
+            put(SPACE_ID7, user2);
+        }};
+
+        Set<Integer> usedIds = new HashSet<>();
+        Set<Integer> unusedIds = new HashSet<Integer>() {{
+            add(SPACE_ID1);
+            add(SPACE_ID2);
+            add(SPACE_ID3);
+            add(SPACE_ID4);
+            add(SPACE_ID5);
+            add(SPACE_ID6);
+            add(SPACE_ID7);
+        }};
+
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+
+        final int CHAIN_ID1 = 12;
+        chainsUtils.insert(CHAIN_ID1, USER_ID1);
+        final int CHAIN_ID2 = 23;
+        chainsUtils.insert(CHAIN_ID2, USER_ID1);
+        final int CHAIN_ID3 = 34;
+        chainsUtils.insert(CHAIN_ID3, USER_ID2);
+
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+
+        chainsUtils.insertBinding(CHAIN_ID1, SPACE_ID1, USER_ID1);
+        unusedIds.remove(SPACE_ID1);
+        usedIds.add(SPACE_ID1);
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+
+        chainsUtils.insertBinding(CHAIN_ID2, SPACE_ID1, USER_ID1);
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+
+        chainsUtils.insertBinding(CHAIN_ID2, SPACE_ID2, USER_ID1);
+        unusedIds.remove(SPACE_ID2);
+        usedIds.add(SPACE_ID2);
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+
+        chainsUtils.insertBinding(CHAIN_ID3, SPACE_ID4, USER_ID2);
+        unusedIds.remove(SPACE_ID4);
+        usedIds.add(SPACE_ID4);
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+
+        chainsUtils.deleteBinding(CHAIN_ID1, SPACE_ID1);
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+
+        chainsUtils.deleteBinding(CHAIN_ID2, SPACE_ID2);
+        usedIds.remove(SPACE_ID2);
+        unusedIds.add(SPACE_ID2);
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+
+        chainsUtils.deleteBinding(CHAIN_ID3, SPACE_ID4);
+        usedIds.remove(SPACE_ID4);
+        unusedIds.add(SPACE_ID4);
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+
+        chainsUtils.deleteBinding(CHAIN_ID2, SPACE_ID1);
+        usedIds.remove(SPACE_ID1);
+        unusedIds.add(SPACE_ID1);
+        assertSpacesInUse(unusedIds, usedIds, spacesOwnership);
+    }
+
+    private void assertSpacesInUse(Set<Integer> unusedIds, Set<Integer> usedIds, Map<Integer, User> ownership) {
+        Set<User> users = new HashSet<>(ownership.values());
+        for (int spaceId : unusedIds) {
+            for (User user : users) {
+                Assert.assertFalse(spacesDao.checkSpaceInUse(user, spaceId));
+            }
+        }
+
+        for (int id : usedIds) {
+            User owner = ownership.get(id);
+            for (User user : users) {
+                if (user == owner) {
+                    Assert.assertTrue(spacesDao.checkSpaceInUse(user, id));
+                } else {
+                    Assert.assertFalse(spacesDao.checkSpaceInUse(user, id));
+                }
             }
         }
     }
@@ -687,11 +872,6 @@ public class SpacesDaoTest extends DaoTestBase {
         user2.setId(USER_ID2);
         usersUtils.insert(user2);
 
-        final int USER_ID3 = 3456;
-        final User user3 = usersUtils.generateInstanceWithUniqueName();
-        user3.setId(USER_ID3);
-        // No insertion
-
         final int SPACE_ID1 = 123;
         final Space space1 = spacesUtils.generateInstanceWithUniqueName(0);
         space1.setId(SPACE_ID1);
@@ -749,6 +929,173 @@ public class SpacesDaoTest extends DaoTestBase {
         for (UserSpace us : spaces) {
             assertEquals(spacesUtils.select(us.space.getId(), us.user.getId()), us.space);
         }
+    }
+
+    /**
+     * See {@link SpacesDao#deleteSpace(User, int)}.
+    **/
+    @Test
+    public void testInvalidArgumentsDeleteSpace() {
+        final int USER_ID = 1234;
+        final User user = usersUtils.generateInstance();
+        user.setId(USER_ID);
+        usersUtils.insert(user);
+
+        final int SPACE_ID1 = 123;
+        final Space space1 = spacesUtils.generateInstanceWithUniqueName(USER_ID);
+        space1.setId(SPACE_ID1);
+        spacesUtils.insert(space1, USER_ID);
+
+        final int SPACE_ID2 = 234;
+        final Space space2 = spacesUtils.generateInstanceWithUniqueName(USER_ID);
+        space2.setId(SPACE_ID2);
+        spacesUtils.insert(space2, USER_ID);
+
+        assertThrows("user is null", () -> spacesDao.deleteSpace(null, SPACE_ID1));
+        assertThrows("user is null", () -> spacesDao.deleteSpace(null, SPACE_ID2));
+
+        user.setId(0);
+        assertThrows("user.id <= 0", () -> spacesDao.deleteSpace(user, SPACE_ID1));
+        assertThrows("user.id <= 0", () -> spacesDao.deleteSpace(user, SPACE_ID2));
+
+        user.setId(-1);
+        assertThrows("user.id <= 0", () -> spacesDao.deleteSpace(user, SPACE_ID1));
+        assertThrows("user.id <= 0", () -> spacesDao.deleteSpace(user, SPACE_ID2));
+
+        user.setId(-100);
+        assertThrows("user.id <= 0", () -> spacesDao.deleteSpace(user, SPACE_ID1));
+        assertThrows("user.id <= 0", () -> spacesDao.deleteSpace(user, SPACE_ID2));
+
+        user.setId(USER_ID);
+        assertThrows("id <= 0", () -> spacesDao.deleteSpace(user, 0));
+        assertThrows("id <= 0", () -> spacesDao.deleteSpace(user, -1));
+        assertThrows("id <= 0", () -> spacesDao.deleteSpace(user, -10));
+        assertThrows("id <= 0", () -> spacesDao.deleteSpace(user, -123));
+
+        assertQuery("SELECT COUNT(*) = 2 FROM spaces");
+        assertQuery("SELECT COUNT(*) = 1 FROM spaces WHERE user_id = ? AND id = ?", USER_ID, SPACE_ID1);
+        assertQuery("SELECT COUNT(*) = 1 FROM spaces WHERE user_id = ? AND id = ?", USER_ID, SPACE_ID2);
+
+        assertEquals(space1, spacesUtils.select(SPACE_ID1, USER_ID));
+        assertEquals(space2, spacesUtils.select(SPACE_ID2, USER_ID));
+
+        Assert.assertTrue(spacesDao.deleteSpace(user, SPACE_ID1));
+        Assert.assertTrue(spacesDao.deleteSpace(user, SPACE_ID2));
+
+        assertQuery("SELECT COUNT(*) = 0 FROM spaces");
+    }
+
+    /**
+     * See {@link SpacesDao#deleteSpace(User, int)}.
+    **/
+    @Test
+    public void testDeleteSpace() {
+        final int USER_ID1 = 1234;
+        final User user1 = usersUtils.generateInstanceWithUniqueName();
+        user1.setId(USER_ID1);
+        usersUtils.insert(user1);
+
+        final int USER_ID2 = 2345;
+        final User user2 = usersUtils.generateInstanceWithUniqueName();
+        user2.setId(USER_ID2);
+        usersUtils.insert(user2);
+
+        final int USER_ID3 = 3456;
+        final User user3 = usersUtils.generateInstanceWithUniqueName();
+        user3.setId(USER_ID3);
+        usersUtils.insert(user3);
+
+        final int SPACE_ID1 = 123;
+        final Space space1 = spacesUtils.generateInstanceWithUniqueName(0);
+        space1.setId(SPACE_ID1);
+        spacesUtils.insert(space1, USER_ID1);
+
+        final int SPACE_ID2 = 234;
+        final Space space2 = spacesUtils.generateInstanceWithUniqueName(0);
+        space2.setId(SPACE_ID2);
+        spacesUtils.insert(space2, USER_ID1);
+
+        final int SPACE_ID3 = 345;
+        final Space space3 = spacesUtils.generateInstanceWithUniqueName(0);
+        space3.setId(SPACE_ID3);
+        spacesUtils.insert(space3, USER_ID1);
+
+        final int SPACE_ID4 = 456;
+        final Space space4 = spacesUtils.generateInstanceWithUniqueName(0);
+        space4.setId(SPACE_ID4);
+        spacesUtils.insert(space4, USER_ID2);
+
+        final int SPACE_ID5 = 567;
+        final Space space5 = spacesUtils.generateInstanceWithUniqueName(0);
+        space5.setId(SPACE_ID5);
+        spacesUtils.insert(space5, USER_ID2);
+
+        final int SPACE_ID6 = 678;
+        final Space space6 = spacesUtils.generateInstanceWithUniqueName(0);
+        space6.setId(SPACE_ID6);
+        spacesUtils.insert(space6, USER_ID2);
+
+        Set<Integer> spaces1 = new HashSet<Integer>() {{
+            add(SPACE_ID1);
+            add(SPACE_ID2);
+            add(SPACE_ID3);
+        }};
+
+        Set<Integer> spaces2 = new HashSet<Integer>() {{
+            add(SPACE_ID4);
+            add(SPACE_ID5);
+            add(SPACE_ID6);
+        }};
+
+        assertQuery("SELECT COUNT(*) = ? FROM spaces WHERE user_id = ?", spaces1.size(), USER_ID1);
+        assertQuery("SELECT COUNT(*) = ? FROM spaces WHERE user_id = ?", spaces2.size(), USER_ID2);
+        assertQuery("SELECT COUNT(*) = 0 FROM spaces WHERE user_id = ?", USER_ID3);
+
+        for (int spaceId : spaces1) {
+            Assert.assertFalse(spacesDao.deleteSpace(user2, spaceId));
+            Assert.assertFalse(spacesDao.deleteSpace(user3, spaceId));
+        }
+
+        for (int spaceId : spaces2) {
+            Assert.assertFalse(spacesDao.deleteSpace(user1, spaceId));
+            Assert.assertFalse(spacesDao.deleteSpace(user3, spaceId));
+        }
+
+        assertQuery("SELECT COUNT(*) = ? FROM spaces WHERE user_id = ?", spaces1.size(), USER_ID1);
+        assertQuery("SELECT COUNT(*) = ? FROM spaces WHERE user_id = ?", spaces2.size(), USER_ID2);
+        assertQuery("SELECT COUNT(*) = 0 FROM spaces WHERE user_id = ?", USER_ID3);
+
+        Set<Integer> deleted = new HashSet<>();
+        Set<Integer> existing = new HashSet<Integer>() {{
+            addAll(spaces1);
+            addAll(spaces2);
+        }};
+
+        assertQuery("SELECT COUNT(*) = ? FROM spaces", existing.size());
+
+        while (!existing.isEmpty()) {
+            final int spaceId = spacesUtils.any(existing);
+            final User user = spaces1.contains(spaceId) ? user1 : user2;
+
+            existing.remove(spaceId);
+            deleted.add(spaceId);
+
+            assertQuery("SELECT COUNT(*) = 1 FROM spaces WHERE id = ?", spaceId);
+
+            Assert.assertTrue(spacesDao.deleteSpace(user, spaceId));
+
+            for (int id : existing) {
+                assertQuery("SELECT COUNT(*) = 1 FROM spaces WHERE id = ?", id);
+            }
+
+            for (int id : deleted) {
+                assertQuery("SELECT COUNT(*) = 0 FROM spaces WHERE id = ?", id);
+            }
+
+            Assert.assertFalse(spacesDao.deleteSpace(user, spaceId));
+        }
+
+        assertQuery("SELECT COUNT(*) = 0 FROM spaces");
     }
 
     /**

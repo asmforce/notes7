@@ -6,6 +6,7 @@ import com.asmx.data.entities.SpaceSimpleFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Collections;
@@ -35,16 +36,20 @@ public class SpacesUtils extends TestUtils {
     }
 
     public Space select(int id, int userId) {
-        final String statement = "SELECT * FROM spaces WHERE id = ?";
-        return template.queryForObject(statement, (rs, index) -> {
-            Assert.assertEquals(userId, rs.getInt("user_id"));
-            Space space = spaceFactory.create();
-            space.setId(rs.getInt("id"));
-            space.setName(rs.getString("name"));
-            space.setDescription(rs.getString("description"));
-            space.setCreationTime(DaoUtils.asDate(rs.getTimestamp("creation_time")));
-            return space;
-        }, id);
+        try {
+            final String statement = "SELECT * FROM spaces WHERE id = ?";
+            return template.queryForObject(statement, (rs, index) -> {
+                Assert.assertEquals(userId, rs.getInt("user_id"));
+                Space space = spaceFactory.create();
+                space.setId(rs.getInt("id"));
+                space.setName(rs.getString("name"));
+                space.setDescription(rs.getString("description"));
+                space.setCreationTime(DaoUtils.asDate(rs.getTimestamp("creation_time")));
+                return space;
+            }, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public boolean delete(int id) {

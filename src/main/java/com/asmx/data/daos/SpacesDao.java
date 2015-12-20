@@ -12,10 +12,11 @@ import java.util.List;
 **/
 public interface SpacesDao {
     /**
-     * Check if there is a space identified by an {@code id} that belongs to a user (referenced by {@link User#getId()}).
+     * Check if there is a space entity that belongs to a user (referenced by {@link User#getId()})
+     * and referenced by an {@code id}.
      * @param user a user that owns a space.
      * @param id an id that references a space entity (see {@link Space#getId()}).
-     * @return {@code true} if a is there or {@code false} otherwise.
+     * @return {@code true} if a referenced space is there or {@code false} otherwise.
      * @throws AssertionError
      * if {@code user} is null;
      * or {@link User#getId()} <= 0;
@@ -25,10 +26,11 @@ public interface SpacesDao {
     boolean checkSpaceExists(User user, int id);
 
     /**
-     * Check if there is a space identified by a {@code name} that belongs to a user (referenced by {@link User#getId()}).
+     * Check if there is a space entity that belongs to a user (referenced by {@link User#getId()})
+     * and referenced by a {@code name}.
      * @param user a user that owns a space.
      * @param name a name that references a space entity (see {@link Space#getName()}).
-     * @return {@code true} if a is there or {@code false} otherwise.
+     * @return {@code true} if a referenced space is there or {@code false} otherwise.
      * @throws AssertionError
      * if {@code user} is null;
      * or {@link User#getId()} <= 0;
@@ -37,6 +39,20 @@ public interface SpacesDao {
      * @throws org.springframework.dao.DataAccessException on database fail or data corruption.
     **/
     boolean checkNameInUse(User user, String name);
+
+    /**
+     * Check if there is at least one notes chain within a space entity that belongs
+     * to a user (referenced by {@link User#getId()}) and referenced by an {@code id}
+     * @param user a user that owns a space.
+     * @param id an id that references a space entity (see {@link Space#getId()}).
+     * @return {@code false} if a referenced space is empty or {@code false} otherwise.
+     * @throws AssertionError
+     * if {@code user} is null;
+     * or {@link User#getId()} <= 0;
+     * or {@code id} <= 0.
+     * @throws org.springframework.dao.DataAccessException on database fail or data corruption.
+    **/
+    boolean checkSpaceInUse(User user, int id);
 
     /**
      * Insert a new space entity. Allocate a new id and return in via {@code space} object (see {@link Space#setId(int)}).
@@ -71,6 +87,19 @@ public interface SpacesDao {
      * @throws org.springframework.dao.DataAccessException on database fail or data corruption.
     **/
     void changeSpace(User user, int id, String name, String description);
+
+    /**
+     * Delete a space entity referenced by {@code id} that belongs to a user (referenced by {@link User#getId()}).
+     * @param user a user that owns a space.
+     * @param id an id that references a space entity (see {@link Space#getId()}).
+     * @return {@code true} if a referenced space was found and deleted or {@code false} otherwise.
+     * @throws AssertionError
+     * if {@code user} is null;
+     * or {@link User#getId()} <= 0;
+     * or {@code id} <= 0.
+     * @throws org.springframework.dao.DataAccessException on database fail or data corruption.
+    **/
+    boolean deleteSpace(User user, int id);
 
     /**
      * Retrieve all space entities that belong to a user (referenced by {@link User#getId()}).

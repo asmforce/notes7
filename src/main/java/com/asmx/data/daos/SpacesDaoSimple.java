@@ -86,6 +86,25 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
     }
 
     @Override
+    public boolean checkSpaceInUse(User user, int id) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert id > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            return template.queryForObject(
+                "SELECT COUNT(*) > 0 FROM chain_bindings WHERE user_id = ? AND space_id = ?",
+                Boolean.class,
+                user.getId(), id
+            );
+        } catch (DataAccessException e) {
+            logger.error("Unable to check if space #" + id + " is in use (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
     public int createSpace(User user, Space space) {
         assert user != null;
         assert user.getId() > 0;
@@ -132,8 +151,7 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
         JdbcTemplate template = getJdbcTemplate();
         try {
             int rows = template.update(
-                "UPDATE spaces SET name = ?, description = ? " +
-                "WHERE user_id = ? AND id = ?",
+                "UPDATE spaces SET name = ?, description = ? WHERE user_id = ? AND id = ?",
                 name, description, user.getId(), id
             );
 
@@ -145,6 +163,26 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
             }
         } catch (DataAccessException e) {
             logger.error("Unable to update space #" + id + " (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public boolean deleteSpace(User user, int id) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert id > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            int rows = template.update("DELETE FROM spaces WHERE user_id = ? AND id = ?", user.getId(), id);
+            if (rows > 1) {
+                throw new DataIntegrityViolationException("Multiple rows deleted using a unique id");
+            } else {
+                return rows == 1;
+            }
+        } catch (DataAccessException e) {
+            logger.error("Unable to delete space #" + id + " (user #" + user.getId() + ")");
             throw e;
         }
     }

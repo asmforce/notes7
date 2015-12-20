@@ -5,6 +5,7 @@ import com.asmx.data.entities.User;
 import com.asmx.data.entities.UserSimpleFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Collections;
@@ -31,16 +32,20 @@ public class UsersUtils extends TestUtils {
     }
 
     public User select(int userId) {
-        final String statement = "SELECT id, name, key, language, timezone FROM users WHERE id = ?";
-        return template.queryForObject(statement, (rs, index) -> {
-            User user = userFactory.create();
-            user.setId(rs.getInt("id"));
-            user.setName(rs.getString("name"));
-            user.setKey(rs.getString("key"));
-            user.setLanguage(rs.getString("language"));
-            user.setTimezone(rs.getString("timezone"));
-            return user;
-        }, userId);
+        try {
+            final String statement = "SELECT id, name, key, language, timezone FROM users WHERE id = ?";
+            return template.queryForObject(statement, (rs, index) -> {
+                User user = userFactory.create();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("name"));
+                user.setKey(rs.getString("key"));
+                user.setLanguage(rs.getString("language"));
+                user.setTimezone(rs.getString("timezone"));
+                return user;
+            }, userId);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public boolean delete(int id) {
