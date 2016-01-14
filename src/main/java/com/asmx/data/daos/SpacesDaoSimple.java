@@ -2,8 +2,6 @@ package com.asmx.data.daos;
 
 import com.asmx.data.Sorting;
 
-import com.asmx.data.daos.errors.DataManagementException;
-
 import com.asmx.data.entities.Space;
 import com.asmx.data.entities.SpaceFactory;
 import com.asmx.data.entities.User;
@@ -140,7 +138,7 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
     }
 
     @Override
-    public void changeSpace(User user, int id, String name, String description) {
+    public boolean changeSpace(User user, int id, String name, String description) {
         assert user != null;
         assert user.getId() > 0;
         assert id > 0;
@@ -157,9 +155,8 @@ public class SpacesDaoSimple extends Dao implements SpacesDao {
 
             if (rows > 1) {
                 throw new DataIntegrityViolationException("Multiple rows updated using a unique id");
-            }
-            if (rows < 1) {
-                throw new DataManagementException("The referenced space does not exist");
+            } else {
+                return rows == 1;
             }
         } catch (DataAccessException e) {
             logger.error("Unable to update space #" + id + " (user #" + user.getId() + ")");

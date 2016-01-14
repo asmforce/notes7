@@ -1,7 +1,6 @@
 package com.asmx.data.daos;
 
 import com.asmx.data.Sorting;
-import com.asmx.data.daos.errors.DataManagementException;
 import com.asmx.data.entities.Keyword;
 import com.asmx.data.entities.KeywordFactory;
 import com.asmx.data.entities.User;
@@ -21,6 +20,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: asmforce
@@ -135,7 +135,7 @@ public class KeywordsDaoSimple extends Dao implements KeywordsDao {
     }
 
     @Override
-    public void changeKeyword(User user, int id, String name) {
+    public boolean changeKeyword(User user, int id, String name) {
         assert user != null;
         assert user.getId() > 0;
         assert id > 0;
@@ -151,12 +151,11 @@ public class KeywordsDaoSimple extends Dao implements KeywordsDao {
 
             if (rows > 1) {
                 throw new DataIntegrityViolationException("Multiple rows updated using a unique id");
-            }
-            if (rows < 1) {
-                throw new DataManagementException("The referenced keyword does not exist");
+            } else {
+                return rows == 1;
             }
         } catch (DataAccessException e) {
-            logger.error("");
+            logger.error("Unable to update a keyword #" + id + " (user #" + user.getId() + ")");
             throw e;
         }
     }
@@ -199,6 +198,70 @@ public class KeywordsDaoSimple extends Dao implements KeywordsDao {
     }
 
     @Override
+    public List<Keyword> getChainKeywords(User user, int chainId, Sorting sorting) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert chainId > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            return template.query(
+                "SELECT k.* FROM keywords k INNER JOIN keyword_bindings b ON k.id = b.keyword_id AND k.user_id = b.user_id " +
+                "WHERE b.user_id = ? AND b.chain_id = ? " + getSortingClause(sorting, DEFAULT_SORTING),
+                keywordMapper, user.getId(), chainId
+            );
+        } catch (DataAccessException e) {
+            logger.error("Unable to get keywords bound to chain #" + chainId + " (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public void setChainKeywords(User user, int chainId, Set<Integer> keywords) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert chainId > 0;
+        assert keywords != null;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            if (keywords.isEmpty()) {
+                template.update("DELETE FROM keyword_bindings WHERE user_id = ? AND chain_id = ?", user.getId(), chainId);
+            } else {
+                final Object[] ids = keywords.toArray();
+
+                template.update(connection -> {
+                    PreparedStatement ps = connection.prepareStatement(
+                        "INSERT INTO keyword_bindings (user_id, keyword_id, chain_id) " +
+                            "SELECT ?, keyword_id, ? FROM UNNEST(?) AS keyword_id WHERE keyword_id NOT IN (" +
+                            "  SELECT keyword_id FROM keyword_bindings WHERE user_id = ? AND chain_id = ?" +
+                            ")"
+                    );
+                    ps.setInt(1, user.getId());
+                    ps.setInt(2, chainId);
+                    ps.setArray(3, connection.createArrayOf("integer", ids));
+                    ps.setInt(4, user.getId());
+                    ps.setInt(5, chainId);
+                    return ps;
+                });
+
+                template.update(connection -> {
+                    PreparedStatement ps = connection.prepareStatement(
+                        "DELETE FROM keyword_bindings WHERE user_id = ? AND chain_id = ? AND keyword_id <> ALL(?)"
+                    );
+                    ps.setInt(1, user.getId());
+                    ps.setInt(2, chainId);
+                    ps.setArray(3, connection.createArrayOf("integer", ids));
+                    return ps;
+                });
+            }
+        } catch (DataAccessException e) {
+            logger.error("Unable to set (bind/unbind) keywords to chain #" + chainId + " (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
     public Keyword getKeyword(User user, int id) {
         assert user != null;
         assert user.getId() > 0;
@@ -222,6 +285,36 @@ public class KeywordsDaoSimple extends Dao implements KeywordsDao {
             }
         } catch (DataAccessException e) {
             logger.error("Unable to get a keyword #" + id + " (user #" + user.getId() + ")");
+            throw e;
+        }
+        return null;
+    }
+
+    @Override
+    public Keyword getKeyword(User user, String name) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert StringUtils.isNotBlank(name);
+        assert StringUtils.length(name) <= Keyword.NAME_MAX_LENGTH;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            List<Keyword> keywords = template.query(
+                "SELECT * FROM keywords WHERE user_id = ? AND name = ?",
+                keywordMapper, user.getId(), name
+            );
+
+            if (CollectionUtils.isEmpty(keywords)) {
+                logger.debug("A keyword `" + name + "` (user #" + user.getId() + ") not exists");
+            } else {
+                if (keywords.size() == 1) {
+                    return keywords.get(0);
+                } else {
+                    throw new DataIntegrityViolationException("A keyword `" + name + "` (user #" + user.getId() + ") duplicated " + keywords.size() + " time(s)");
+                }
+            }
+        } catch (DataAccessException e) {
+            logger.error("Unable to get a keyword `" + name + "` (user #" + user.getId() + ")");
             throw e;
         }
         return null;

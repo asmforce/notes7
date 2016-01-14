@@ -1,6 +1,5 @@
 package com.asmx.data.daos;
 
-import com.asmx.data.daos.errors.DataManagementException;
 import com.asmx.data.entities.Attachment;
 import com.asmx.data.entities.AttachmentFactory;
 import com.asmx.data.entities.User;
@@ -81,7 +80,7 @@ public class AttachmentsDaoSimple extends Dao implements AttachmentsDao {
     }
 
     @Override
-    public void changeAttachment(User user, int noteId, Attachment attachment) {
+    public boolean changeAttachment(User user, int noteId, Attachment attachment) {
         assert user != null;
         assert user.getId() > 0;
         assert noteId > 0;
@@ -99,9 +98,8 @@ public class AttachmentsDaoSimple extends Dao implements AttachmentsDao {
 
             if (rows > 1) {
                 throw new DataIntegrityViolationException("Multiple rows updated using a unique id");
-            }
-            if (rows < 1) {
-                throw new DataManagementException("The referenced attachment does not exist");
+            } else {
+                return rows == 1;
             }
         } catch (DataAccessException e) {
             logger.error("Unable to change an attachment #" + attachment.getId() + " for note #" + noteId + " (user #" + user.getId() + ")");

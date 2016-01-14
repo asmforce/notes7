@@ -1,7 +1,6 @@
 package com.asmx.data.daos;
 
 import com.asmx.data.Sorting;
-import com.asmx.data.daos.errors.DataManagementException;
 import com.asmx.data.entities.Space;
 import com.asmx.data.entities.User;
 import org.apache.commons.lang3.StringUtils;
@@ -722,12 +721,12 @@ public class SpacesDaoTest extends DaoTestBase {
 
         assertThrows("description is null", () -> spacesDao.changeSpace(user, SPACE_ID, newName, null));
 
-        assertThrows("space id doesn't exist", () -> spacesDao.changeSpace(user, SPACE_ID + 1, newName, newDescription), DataManagementException.class);
-        assertThrows("space id doesn't exist", () -> spacesDao.changeSpace(user, SPACE_ID + 5, newName, newDescription), DataManagementException.class);
+        Assert.assertFalse("space id doesn't exist", spacesDao.changeSpace(user, SPACE_ID + 1, newName, newDescription));
+        Assert.assertFalse("space id doesn't exist", spacesDao.changeSpace(user, SPACE_ID + 5, newName, newDescription));
 
         assertEquals(spacesUtils.select(SPACE_ID, USER_ID), space);
 
-        spacesDao.changeSpace(user, SPACE_ID, newName, newDescription);
+        Assert.assertTrue(spacesDao.changeSpace(user, SPACE_ID, newName, newDescription));
         space.setName(newName);
         space.setDescription(newDescription);
         assertEquals(spacesUtils.select(SPACE_ID, USER_ID), space);
@@ -786,18 +785,18 @@ public class SpacesDaoTest extends DaoTestBase {
         String name = spacesUtils.generateUniqueName(0);
         String description = spacesUtils.generateDescription();
 
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user2, SPACE_ID1, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user2, SPACE_ID2, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user2, SPACE_ID3, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user3, SPACE_ID1, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user3, SPACE_ID2, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user3, SPACE_ID3, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user1, SPACE_ID4, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user1, SPACE_ID5, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user1, SPACE_ID6, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user3, SPACE_ID4, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user3, SPACE_ID5, name, description), DataManagementException.class);
-        assertThrows("user/space doesn't exist", () -> spacesDao.changeSpace(user3, SPACE_ID6, name, description), DataManagementException.class);
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user2, SPACE_ID1, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user2, SPACE_ID2, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user2, SPACE_ID3, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user3, SPACE_ID1, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user3, SPACE_ID2, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user3, SPACE_ID3, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user1, SPACE_ID4, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user1, SPACE_ID5, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user1, SPACE_ID6, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user3, SPACE_ID4, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user3, SPACE_ID5, name, description));
+        Assert.assertFalse("user/space doesn't exist", spacesDao.changeSpace(user3, SPACE_ID6, name, description));
 
         assertEquals(spacesUtils.select(SPACE_ID1, USER_ID1), space1);
         assertEquals(spacesUtils.select(SPACE_ID2, USER_ID1), space2);
@@ -810,13 +809,13 @@ public class SpacesDaoTest extends DaoTestBase {
         exchangeNameAndDescription(space2, space5);
         exchangeNameAndDescription(space3, space6);
 
-        spacesDao.changeSpace(user1, SPACE_ID1, space1.getName(), space1.getDescription());
-        spacesDao.changeSpace(user1, SPACE_ID2, space2.getName(), space2.getDescription());
-        spacesDao.changeSpace(user1, SPACE_ID3, space3.getName(), space3.getDescription());
+        Assert.assertTrue(spacesDao.changeSpace(user1, SPACE_ID1, space1.getName(), space1.getDescription()));
+        Assert.assertTrue(spacesDao.changeSpace(user1, SPACE_ID2, space2.getName(), space2.getDescription()));
+        Assert.assertTrue(spacesDao.changeSpace(user1, SPACE_ID3, space3.getName(), space3.getDescription()));
 
-        spacesDao.changeSpace(user2, SPACE_ID4, space4.getName(), space4.getDescription());
-        spacesDao.changeSpace(user2, SPACE_ID5, space5.getName(), space5.getDescription());
-        spacesDao.changeSpace(user2, SPACE_ID6, space6.getName(), space6.getDescription());
+        Assert.assertTrue(spacesDao.changeSpace(user2, SPACE_ID4, space4.getName(), space4.getDescription()));
+        Assert.assertTrue(spacesDao.changeSpace(user2, SPACE_ID5, space5.getName(), space5.getDescription()));
+        Assert.assertTrue(spacesDao.changeSpace(user2, SPACE_ID6, space6.getName(), space6.getDescription()));
 
         assertEquals(spacesUtils.select(SPACE_ID1, USER_ID1), space1);
         assertEquals(spacesUtils.select(SPACE_ID2, USER_ID1), space2);
@@ -840,7 +839,7 @@ public class SpacesDaoTest extends DaoTestBase {
             for (int k = 0; k < spaces2.length; k++) {
                 Space s1 = spaces2[i], s2 = spaces2[k];
                 if (i != k) {
-                    assertThrows("name duplication", () -> spacesDao.changeSpace(user1, s1.getId(), s2.getName(), s2.getDescription()), DataAccessException.class);
+                    assertThrows("name duplication", () -> spacesDao.changeSpace(user2, s1.getId(), s2.getName(), s2.getDescription()), DataAccessException.class);
                 }
             }
         }
@@ -921,7 +920,7 @@ public class SpacesDaoTest extends DaoTestBase {
             us.space.setName(newName);
             us.space.setDescription(newDescription);
 
-            spacesDao.changeSpace(us.user, us.space.getId(), newName, newDescription);
+            Assert.assertTrue(spacesDao.changeSpace(us.user, us.space.getId(), newName, newDescription));
 
             assertEquals(spacesUtils.select(us.space.getId(), us.user.getId()), us.space);
         }

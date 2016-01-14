@@ -1,6 +1,5 @@
 package com.asmx.data.daos;
 
-import com.asmx.data.daos.errors.DataManagementException;
 import com.asmx.data.entities.User;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -378,15 +377,15 @@ public class UsersDaoTest extends DaoTestBase {
             switch (i % 3) {
             case 0:
                 user1.setName(usersUtils.generateUniqueName());
-                usersDao.changeUser(user1);
+                Assert.assertTrue(usersDao.changeUser(user1));
                 break;
             case 1:
                 user2.setName(usersUtils.generateUniqueName());
-                usersDao.changeUser(user2);
+                Assert.assertTrue(usersDao.changeUser(user2));
                 break;
             case 2:
                 user3.setName(usersUtils.generateUniqueName());
-                usersDao.changeUser(user3);
+                Assert.assertTrue(usersDao.changeUser(user3));
                 break;
             }
 
@@ -453,19 +452,19 @@ public class UsersDaoTest extends DaoTestBase {
         final int USER_ID1 = 123;
         final User user1 = usersUtils.generateInstanceWithUniqueName();
         user1.setId(USER_ID1);
-        assertThrows("id references nothing", () -> usersDao.changeUser(user1), DataManagementException.class);
+        Assert.assertFalse("id references nothing", usersDao.changeUser(user1));
         usersUtils.insert(user1);
 
         final int USER_ID2 = 234;
         final User user2 = usersUtils.generateInstanceWithUniqueName();
         user2.setId(USER_ID2);
-        assertThrows("id references nothing", () -> usersDao.changeUser(user2), DataManagementException.class);
+        Assert.assertFalse("id references nothing", usersDao.changeUser(user2));
         usersUtils.insert(user2);
 
         final int USER_ID3 = 345;
         final User user3 = usersUtils.generateInstanceWithUniqueName();
         user3.setId(USER_ID3);
-        assertThrows("id references nothing", () -> usersDao.changeUser(user3), DataManagementException.class);
+        Assert.assertFalse("id references nothing", usersDao.changeUser(user3));
         usersUtils.insert(user3);
 
         assertQuery("SELECT COUNT(*) = 3 FROM users");
@@ -476,7 +475,7 @@ public class UsersDaoTest extends DaoTestBase {
 
         usersUtils.generateInstanceWithUniqueName(user1);
         user1.setId(USER_ID1);
-        usersDao.changeUser(user1);
+        Assert.assertTrue(usersDao.changeUser(user1));
 
         assertEquals(user1, usersUtils.select(USER_ID1));
         assertEquals(user2, usersUtils.select(USER_ID2));
@@ -484,7 +483,7 @@ public class UsersDaoTest extends DaoTestBase {
 
         usersUtils.generateInstanceWithUniqueName(user2);
         user2.setId(USER_ID2);
-        usersDao.changeUser(user2);
+        Assert.assertTrue(usersDao.changeUser(user2));
 
         assertEquals(user1, usersUtils.select(USER_ID1));
         assertEquals(user2, usersUtils.select(USER_ID2));
@@ -492,7 +491,7 @@ public class UsersDaoTest extends DaoTestBase {
 
         usersUtils.generateInstanceWithUniqueName(user3);
         user3.setId(USER_ID3);
-        usersDao.changeUser(user3);
+        Assert.assertTrue(usersDao.changeUser(user3));
 
         assertEquals(user1, usersUtils.select(USER_ID1));
         assertEquals(user2, usersUtils.select(USER_ID2));
@@ -500,7 +499,7 @@ public class UsersDaoTest extends DaoTestBase {
 
         usersUtils.generateInstanceWithUniqueName(user1);
         user1.setId(USER_ID1);
-        usersDao.changeUser(user1);
+        Assert.assertTrue(usersDao.changeUser(user1));
 
         assertEquals(user1, usersUtils.select(USER_ID1));
         assertEquals(user2, usersUtils.select(USER_ID2));

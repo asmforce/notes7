@@ -1,7 +1,6 @@
 package com.asmx.data.daos;
 
 import com.asmx.data.Sorting;
-import com.asmx.data.daos.errors.DataManagementException;
 import com.asmx.data.entities.Tag;
 import com.asmx.data.entities.TagFactory;
 import com.asmx.data.entities.User;
@@ -21,6 +20,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: asmforce
@@ -138,7 +138,7 @@ public class TagsDaoSimple extends Dao implements TagsDao {
     }
 
     @Override
-    public void changeTag(User user, int id, String name, String description) {
+    public boolean changeTag(User user, int id, String name, String description) {
         assert user != null;
         assert user.getId() > 0;
         assert id > 0;
@@ -155,12 +155,11 @@ public class TagsDaoSimple extends Dao implements TagsDao {
 
             if (rows > 1) {
                 throw new DataIntegrityViolationException("Multiple rows updated using a unique id");
-            }
-            if (rows < 1) {
-                throw new DataManagementException("The referenced tag does not exist");
+            } else {
+                return rows == 1;
             }
         } catch (DataAccessException e) {
-            logger.error("");
+            logger.error("Unable to change a tag #" + id + " (user #" + user.getId() + ")");
             throw e;
         }
     }
@@ -203,6 +202,70 @@ public class TagsDaoSimple extends Dao implements TagsDao {
     }
 
     @Override
+    public List<Tag> getChainTags(User user, int chainId, Sorting sorting) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert chainId > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            return template.query(
+                "SELECT t.* FROM tags t INNER JOIN tag_bindings b ON t.id = b.tag_id AND t.user_id = b.user_id " +
+                "WHERE b.user_id = ? AND b.chain_id = ? " + getSortingClause(sorting, DEFAULT_SORTING),
+                tagMapper, user.getId(), chainId
+            );
+        } catch (DataAccessException e) {
+            logger.error("Unable to get tags bound to chain #" + chainId + " (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public void setChainTags(User user, int chainId, Set<Integer> tags) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert chainId > 0;
+        assert tags != null;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            if (tags.isEmpty()) {
+                template.update("DELETE FROM tag_bindings WHERE user_id = ? AND chain_id = ?", user.getId(), chainId);
+            } else {
+                final Object[] ids = tags.toArray();
+
+                template.update(connection -> {
+                    PreparedStatement ps = connection.prepareStatement(
+                        "INSERT INTO tag_bindings (user_id, tag_id, chain_id) " +
+                            "SELECT ?, tag_id, ? FROM UNNEST(?) AS tag_id WHERE tag_id NOT IN (" +
+                            "  SELECT tag_id FROM tag_bindings WHERE user_id = ? AND chain_id = ?" +
+                            ")"
+                    );
+                    ps.setInt(1, user.getId());
+                    ps.setInt(2, chainId);
+                    ps.setArray(3, connection.createArrayOf("integer", ids));
+                    ps.setInt(4, user.getId());
+                    ps.setInt(5, chainId);
+                    return ps;
+                });
+
+                template.update(connection -> {
+                    PreparedStatement ps = connection.prepareStatement(
+                        "DELETE FROM tag_bindings WHERE user_id = ? AND chain_id = ? AND tag_id <> ALL(?)"
+                    );
+                    ps.setInt(1, user.getId());
+                    ps.setInt(2, chainId);
+                    ps.setArray(3, connection.createArrayOf("integer", ids));
+                    return ps;
+                });
+            }
+        } catch (DataAccessException e) {
+            logger.error("Unable to set (bind/unbind) tags to chain #" + chainId + " (user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
     public Tag getTag(User user, int id) {
         assert user != null;
         assert user.getId() > 0;
@@ -226,6 +289,36 @@ public class TagsDaoSimple extends Dao implements TagsDao {
             }
         } catch (DataAccessException e) {
             logger.error("Unable to get a tag #" + id + " (user #" + user.getId() + ")");
+            throw e;
+        }
+        return null;
+    }
+
+    @Override
+    public Tag getTag(User user, String name) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert StringUtils.isNotBlank(name);
+        assert StringUtils.length(name) <= Tag.NAME_MAX_LENGTH;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            List<Tag> tags = template.query(
+                "SELECT * FROM tags WHERE user_id = ? AND name = ?",
+                tagMapper, user.getId(), name
+            );
+
+            if (CollectionUtils.isEmpty(tags)) {
+                logger.debug("A tag `" + name + "` (user #" + user.getId() + ") not exists");
+            } else {
+                if (tags.size() == 1) {
+                    return tags.get(0);
+                } else {
+                    throw new DataIntegrityViolationException("A tag `" + name + "` (user #" + user.getId() + ") duplicated " + tags.size() + " time(s)");
+                }
+            }
+        } catch (DataAccessException e) {
+            logger.error("Unable to get a tag `" + name + "` (user #" + user.getId() + ")");
             throw e;
         }
         return null;

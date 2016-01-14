@@ -41,7 +41,7 @@ public interface SpacesDao {
     boolean checkNameInUse(User user, String name);
 
     /**
-     * Check if there is at least one notes chain within a space entity that belongs
+     * Check if there is at least one chain bound to a space entity that belongs
      * to a user (referenced by {@link User#getId()}) and referenced by an {@code id}
      * @param user a user that owns a space.
      * @param id an id that references a space entity (see {@link Space#getId()}).
@@ -67,7 +67,10 @@ public interface SpacesDao {
      * or {@link Space#getName()} is longer that {@link Space#NAME_MAX_LENGTH} characters;
      * or {@link Space#getDescription()} is null;
      * or {@link Space#getCreationTime()} is null.
-     * @throws org.springframework.dao.DataAccessException on database fail or data corruption.
+     * @throws org.springframework.dao.DataAccessException
+     * if a user (referenced by {@link User#getId()}) doesn't exist;
+     * or the name (see {@link Space#getName()}) is already in use;
+     * or on database fail or data corruption.
     **/
     int createSpace(User user, Space space);
 
@@ -77,6 +80,7 @@ public interface SpacesDao {
      * @param id an id of a space to update (see {@link Space#getId()}).
      * @param name a new name of a space (see {@link Space#setName(String)}).
      * @param description a new description of a space (see {@link Space#setDescription(String)}).
+     * @return {@code true} if succeeded or {@code false} if a space referenced by {@code id} doesn't exist.
      * @throws AssertionError
      * if {@code user} is null;
      * or {@link User#getId()} <= 0;
@@ -84,9 +88,11 @@ public interface SpacesDao {
      * or {@code name} is blank;
      * or {@code name} is longer that {@link Space#NAME_MAX_LENGTH} characters;
      * or {@code description} is null.
-     * @throws org.springframework.dao.DataAccessException on database fail or data corruption.
+     * @throws org.springframework.dao.DataAccessException
+     * if the name (see {@link Space#getName()}) is already in use;
+     * or on database fail or data corruption.
     **/
-    void changeSpace(User user, int id, String name, String description);
+    boolean changeSpace(User user, int id, String name, String description);
 
     /**
      * Delete a space entity referenced by {@code id} that belongs to a user (referenced by {@link User#getId()}).
@@ -117,7 +123,7 @@ public interface SpacesDao {
      * Retrieve a space entity referenced by {@code id} that belongs to a user (referenced by {@link User#getId()}).
      * @param user a user that owns a space.
      * @param id an id that references a space entity (see {@link Space#getId()}).
-     * @return a referenced space entity of null (if it doesn't exist).
+     * @return a referenced space entity or {@code null} (if it doesn't exist).
      * @throws AssertionError
      * if {@code user} is null;
      * or {@link User#getId()} <= 0;

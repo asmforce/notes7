@@ -16,6 +16,11 @@ public class ChainsUtils extends TestUtils {
         template.update(statement, chainId, userId);
     }
 
+    public boolean update(int chainId, int userId) {
+        final String statement = "UPDATE chains SET user_id = ? WHERE id = ?";
+        return template.update(statement, userId, chainId) > 0;
+    }
+
     public boolean delete(int chainId) {
         final String statement = "DELETE FROM chains WHERE id = ?";
         return template.update(statement, chainId) > 0;
@@ -34,6 +39,11 @@ public class ChainsUtils extends TestUtils {
     public boolean deleteBinding(int chainId, int spaceId) {
         final String statement = "DELETE FROM chain_bindings WHERE chain_id = ? AND space_id = ?";
         return template.update(statement, chainId, spaceId) > 0;
+    }
+
+    public boolean existsBinding(int chainId, int spaceId, int userId) {
+        final String statement = "SELECT COUNT(*) > 0 FROM chain_bindings WHERE user_id = ? AND chain_id = ? AND space_id = ?";
+        return template.queryForObject(statement, Boolean.class, userId, chainId, spaceId);
     }
 
     @Required

@@ -2,7 +2,6 @@ package com.asmx.data.daos;
 
 import com.asmx.data.Pagination;
 import com.asmx.data.Sorting;
-import com.asmx.data.daos.errors.DataManagementException;
 import com.asmx.data.entities.ChangeRecord;
 import com.asmx.data.entities.ChangeRecordFactory;
 import com.asmx.data.entities.Note;
@@ -51,103 +50,20 @@ public class NotesDaoSimple extends Dao implements NotesDao {
     }
 
     @Override
-    public boolean checkChainExists(User user, int chainId) {
+    public boolean checkNoteExists(User user, int id) {
         assert user != null;
         assert user.getId() > 0;
-        assert chainId > 0;
-
-        JdbcTemplate template = getJdbcTemplate();
-        try {
-            return template.queryForObject(
-                "SELECT COUNT(*) > 0 FROM chains WHERE user_id = ? AND id = ?",
-                Boolean.class,
-                user.getId(), chainId
-            );
-        } catch (DataAccessException e) {
-            logger.error("Unable to check a chain #" + chainId + " for existence (user #" + user.getId() + ")");
-            throw e;
-        }
-    }
-
-    @Override
-    public int createChain(User user) {
-        assert user != null;
-        assert user.getId() > 0;
-
-        JdbcTemplate template = getJdbcTemplate();
-        try {
-            GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-            template.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO chains (id, user_id) VALUES (DEFAULT , ?)",
-                    new String[]{"id"}
-                );
-                ps.setInt(1, user.getId());
-                return ps;
-            }, keyHolder);
-
-            Number newId = keyHolder.getKey();
-            return newId.intValue();
-        } catch (DataAccessException e) {
-            logger.error("Unable to create a chain (user #" + user.getId() + ")");
-            throw e;
-        }
-    }
-
-    @Override
-    public boolean checkChainBindingExists(User user, int chainId, int spaceId) {
-        assert user != null;
-        assert user.getId() > 0;
-        assert chainId > 0;
-        assert spaceId > 0;
-
-        JdbcTemplate template = getJdbcTemplate();
-        try {
-            return template.queryForObject(
-                "SELECT COUNT(*) > 0 FROM chain_bindings WHERE user_id = ? AND chain_id = ? AND space_id",
-                Boolean.class,
-                user.getId(), chainId, spaceId
-            );
-        } catch (DataAccessException e) {
-            logger.error("Unable to check a chain #" + chainId + " binding to space #" + spaceId + " for existence (user #" + user.getId() + ")");
-            throw e;
-        }
-    }
-
-    @Override
-    public void createChainBinding(User user, int chainId, int spaceId) {
-        assert user != null;
-        assert user.getId() > 0;
-        assert chainId > 0;
-        assert spaceId > 0;
-
-        JdbcTemplate template = getJdbcTemplate();
-        try {
-            template.update(
-                "INSERT INTO chain_bindings (user_id, space_id, chain_id) VALUES (?, ?, ?)",
-                user.getId(), spaceId, chainId
-            );
-        } catch (DataAccessException e) {
-            logger.error("Unable to create a chain #" + chainId + " binding to space #" + spaceId + " (user #" + user.getId() + ")");
-            throw e;
-        }
-    }
-
-    @Override
-    public boolean checkNoteExists(User user, int noteId) {
-        assert user != null;
-        assert user.getId() > 0;
-        assert noteId > 0;
+        assert id > 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
             return template.queryForObject(
                 "SELECT COUNT(*) > 0 FROM notes WHERE user_id = ? AND id = ?",
                 Boolean.class,
-                user.getId(), noteId
+                user.getId(), id
             );
         } catch (DataAccessException e) {
-            logger.error("Unable to check a note #" + noteId + " for existence (user #" + user.getId() + ")");
+            logger.error("Unable to check a note #" + id + " for existence (user #" + user.getId() + ")");
             throw e;
         }
     }
@@ -288,25 +204,25 @@ public class NotesDaoSimple extends Dao implements NotesDao {
     }
 
     @Override
-    public Note getNote(User user, int noteId) {
+    public Note getNote(User user, int id) {
         assert user != null;
         assert user.getId() > 0;
-        assert noteId > 0;
+        assert id > 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
-            List<Note> notes = template.query("SELECT * FROM notes WHERE user_id = ? AND id = ?", noteMapper, user.getId(), noteId);
+            List<Note> notes = template.query("SELECT * FROM notes WHERE user_id = ? AND id = ?", noteMapper, user.getId(), id);
             if (CollectionUtils.isEmpty(notes)) {
-                logger.debug("A note #" + noteId + " (user #" + user.getId() + ") not exists");
+                logger.debug("A note #" + id + " (user #" + user.getId() + ") not exists");
             } else {
                 if (notes.size() == 1) {
                     return notes.get(0);
                 } else {
-                    throw new DataIntegrityViolationException("A note #" + noteId + " (user #" + user.getId() + ") duplicated " + notes.size() + " time(s)");
+                    throw new DataIntegrityViolationException("A note #" + id + " (user #" + user.getId() + ") duplicated " + notes.size() + " time(s)");
                 }
             }
         } catch (DataAccessException e) {
-            logger.error("Unable to get a note #" + noteId + " (user #" + user.getId() + ")");
+            logger.error("Unable to get a note #" + id + " (user #" + user.getId() + ")");
             throw e;
         }
         return null;
@@ -350,27 +266,46 @@ public class NotesDaoSimple extends Dao implements NotesDao {
     }
 
     @Override
-    public void changeNote(User user, int noteId, String text) {
+    public boolean changeNote(User user, int id, String text) {
         assert user != null;
         assert user.getId() > 0;
-        assert noteId > 0;
+        assert id > 0;
         assert text != null;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
             int rows = template.update(
                 "UPDATE notes SET text = ? WHERE user_id = ? AND id = ?",
-                text, user.getId(), noteId
+                text, user.getId(), id
             );
 
             if (rows > 1) {
                 throw new DataIntegrityViolationException("Multiple rows updated using a unique id");
-            }
-            if (rows < 1) {
-                throw new DataManagementException("The referenced note does not exist");
+            } else {
+                return rows == 1;
             }
         } catch (DataAccessException e) {
-            logger.error("Unable to update a note #" + noteId + " (chain #" + noteId + ", user #" + user.getId() + ")");
+            logger.error("Unable to update a note #" + id + " (chain #" + id + ", user #" + user.getId() + ")");
+            throw e;
+        }
+    }
+
+    @Override
+    public boolean deleteNote(User user, int id) {
+        assert user != null;
+        assert user.getId() > 0;
+        assert id > 0;
+
+        JdbcTemplate template = getJdbcTemplate();
+        try {
+            int rows = template.update("DELETE FROM notes WHERE user_id = ? AND id = ?", user.getId(), id);
+            if (rows > 0) {
+                throw new DataIntegrityViolationException("Multiple rows deleted using a unique id");
+            } else {
+                return rows == 1;
+            }
+        } catch(DataAccessException e) {
+            logger.error("Unable to delete a note #" + id + " (user #" + user.getId() + ")");
             throw e;
         }
     }
@@ -406,20 +341,20 @@ public class NotesDaoSimple extends Dao implements NotesDao {
     }
 
     @Override
-    public List<ChangeRecord> getChangeRecords(User user, int noteId) {
+    public List<ChangeRecord> getChangeRecords(User user, int id) {
         assert user != null;
         assert user.getId() > 0;
-        assert noteId > 0;
+        assert id > 0;
 
         JdbcTemplate template = getJdbcTemplate();
         try {
             return template.query(
                 "SELECT * FROM note_changes WHERE user_id = ? AND note_id = ? " +
                 "ORDER BY idea_time DESC",
-                changeMapper, user.getId(), noteId
+                changeMapper, user.getId(), id
             );
         } catch (DataAccessException e) {
-            logger.error("Unable to get a change history for note #" + noteId + " (user #" + user.getId() + ")");
+            logger.error("Unable to get a change history for note #" + id + " (user #" + user.getId() + ")");
             throw e;
         }
     }

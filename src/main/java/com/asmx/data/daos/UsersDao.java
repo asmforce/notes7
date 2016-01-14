@@ -50,6 +50,7 @@ public interface UsersDao {
     /**
      * Update an existing user entity (referenced by {@link User#getId()}).
      * @param user a user entity to store.
+     * @return {@code true} if succeeded or {@code false} if a user referenced by {@link User#getId()} doesn't exist.
      * @throws AssertionError
      * if {@code user} is null;
      * or {@link User#getId()} <= 0;
@@ -61,10 +62,9 @@ public interface UsersDao {
      * or {@link User#getLanguage()} is longer than {@link User#LANGUAGE_MAX_LENGTH} characters;
      * or {@link User#getTimezone()} is null or blank;
      * or {@link User#getTimezone()} is longer than {@link User#TIMEZONE_MAX_LENGTH} characters.
-     * @throws com.asmx.data.daos.errors.DataManagementException if a user referenced by {@link User#getId()} doesn't exist.
      * @throws org.springframework.dao.DataAccessException on database fail or data corruption.
     **/
-    void changeUser(User user);
+    boolean changeUser(User user);
 
     /**
      * Retrieve a user entity referenced by {@code id}.

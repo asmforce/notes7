@@ -19,19 +19,16 @@ public interface NotesDao {
         TARGET
     }
 
-    boolean checkChainExists(User user, int chainId);
-    int createChain(User user);
-    boolean checkChainBindingExists(User user, int chainId, int spaceId);
-    void createChainBinding(User user, int chainId, int spaceId);
-    boolean checkNoteExists(User user, int noteId);
+    boolean checkNoteExists(User user, int id);
     List<Note> getNotes(User user, Pagination pagination, Sorting sorting);
     List<Note> getSpaceNotes(User user, int spaceId, Pagination pagination, Sorting sorting);
     List<Note> getFreeSpaceNotes(User user, Pagination pagination, Sorting sorting);
     List<Note> getChainNotes(User user, int chainId);
-    List<Note> getRelatedNotes(User user, RelationType relationType, int noteId, Pagination pagination, Sorting sorting);
-    Note getNote(User user, int noteId);
+    List<Note> getRelatedNotes(User user, RelationType relationType, int id, Pagination pagination, Sorting sorting);
+    Note getNote(User user, int id);
     int createNote(User user, Note note);
-    void changeNote(User user, int noteId, String text);
+    boolean changeNote(User user, int id, String text);
+    boolean deleteNote(User user, int id);
     void createChangeRecord(User user, ChangeRecord change);
-    List<ChangeRecord> getChangeRecords(User user, int noteId);
+    List<ChangeRecord> getChangeRecords(User user, int id);
 }

@@ -1,7 +1,5 @@
 package com.asmx.data.daos;
 
-import com.asmx.data.daos.errors.DataManagementException;
-
 import com.asmx.data.entities.User;
 import com.asmx.data.entities.UserFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -94,7 +92,7 @@ public class UsersDaoSimple extends Dao implements UsersDao {
     }
 
     @Override
-    public void changeUser(User user) {
+    public boolean changeUser(User user) {
         assert user != null;
         assert user.getId() > 0;
         assert StringUtils.isNotBlank(user.getName());
@@ -119,9 +117,8 @@ public class UsersDaoSimple extends Dao implements UsersDao {
 
             if (rows > 1) {
                 throw new DataIntegrityViolationException("Multiple rows updated using a unique id");
-            }
-            if (rows < 1) {
-                throw new DataManagementException("The referenced user #" + user.getId() + " does not exist");
+            } else {
+                return rows == 1;
             }
         } catch (DataAccessException e) {
             logger.error("Unable to update a user #" + user.getId());

@@ -88,6 +88,10 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <bean name="chainsDao" class="com.asmx.data.daos.ChainsDaoSimple">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
     <bean name="notesDao" class="com.asmx.data.daos.NotesDaoSimple">
         <property name="noteFactory" ref="noteFactory"/>
         <property name="changeRecordFactory" ref="changeRecordFactory"/>
