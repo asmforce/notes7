@@ -164,10 +164,10 @@ public class NotesDaoSimple extends Dao implements NotesDao {
     }
 
     @Override
-    public List<Note> getRelatedNotes(User user, RelationType relationType, int id, Pagination pagination, Sorting sorting) {
+    public List<Note> getRelatedNotes(User user, RelationType type, int id, Pagination pagination, Sorting sorting) {
         assert user != null;
         assert user.getId() > 0;
-        assert relationType != null;
+        assert type != null;
         assert id > 0;
         assert pagination != null;
 
@@ -176,7 +176,7 @@ public class NotesDaoSimple extends Dao implements NotesDao {
         }
 
         try {
-            switch (relationType) {
+            switch (type) {
             case SOURCE:
                 return getNotesByIds(
                     "SELECT target_id FROM note_relations WHERE source_id = ?",
@@ -198,7 +198,7 @@ public class NotesDaoSimple extends Dao implements NotesDao {
                 );
             }
         } catch (DataAccessException e) {
-            logger.error("Unable to get related notes (note #" + id + ", relation " + relationType.name() + ", user #" + user.getId() + ")");
+            logger.error("Unable to get related notes (note #" + id + ", relation " + type.name() + ", user #" + user.getId() + ")");
             throw e;
         }
     }
