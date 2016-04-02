@@ -1,0 +1,10 @@
+@import "@skin";
+
+body {
+  > .grid {
+    height: 100%;
+    > .l-logon-tile {
+      width: 500px !important;
+    }
+  }
+}

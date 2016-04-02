@@ -2,19 +2,24 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
+var sass = require('gulp-sass');
 
-var sources = [
-    './application/heads.js',
-    './application/boot/*.js',
-    './application/core/*.js',
-    './application/core/binding/*.js',
-    './application/controllers/tools/*.js',
-    './application/controllers/*.js',
-    './application/tails.js'
+var scripts = [
+    './scripts/heads.js',
+    './scripts/boot/*.js',
+    './scripts/core/*.js',
+    './scripts/core/binding/*.js',
+    './scripts/controllers/tools/*.js',
+    './scripts/controllers/*.js',
+    './scripts/tails.js'
 ];
 
-gulp.task('compile', function() {
-    gulp.src(sources)
+var styles = [
+    './styles/application.scss'
+];
+
+gulp.task('compile-js', function() {
+    gulp.src(scripts)
         .pipe(concat('application.js'))
         .pipe(uglify({
             mangle: false,
@@ -27,4 +32,15 @@ gulp.task('compile', function() {
         .pipe(gulp.dest('./'));
 });
 
+gulp.task('compile-css', function() {
+    gulp.src(styles)
+        .pipe(concat('application.css'))
+        .pipe(sass({
+            errLogToConsole: true,
+            outputStyle: 'expanded'
+        }).on('error', sass.logError))
+        .pipe(gulp.dest('./'));
+});
+
+gulp.task('compile', ['compile-js', 'compile-css']);
 gulp.task('default', ['compile']);

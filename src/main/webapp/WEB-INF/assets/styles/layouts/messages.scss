@@ -1,0 +1,21 @@
+@import "@skin";
+
+.messages-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  padding: $messages-spacing;
+
+  > .message {
+    margin: 0 0 $messages-spacing 0;
+  }
+}
+
+body {
+  > .messages-wrapper {
+    width: 30%;
+    min-width: 300px;
+    max-width: 500px;
+  }
+}

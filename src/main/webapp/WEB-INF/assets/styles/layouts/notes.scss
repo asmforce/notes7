@@ -1,0 +1,18 @@
+@import "@skin";
+
+.l-notes-wrapper {
+  height: 100%;
+
+  > .segment {
+    &:target {
+      -webkit-animation: target-highlight 5s 1 linear;
+      animation: target-highlight 5s 1 linear;
+    }
+
+    .description {
+      font-family: $note-font-family;
+      font-weight: $note-font-weight;
+      color: $note-text-color !important;
+    }
+  }
+}

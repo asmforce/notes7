@@ -1,16 +1,7 @@
-.careless {
-  opacity: 0.4;
-}
-
-.careless:hover {
-  opacity: 1;
-}
-
 .anim-blinking {
   -webkit-animation: blinking 2s infinite ease;
   animation: blinking 2s infinite ease;
 }
-
 @-webkit-keyframes blinking {
   0%, 50%, 100% {
     color: black;
@@ -19,7 +10,6 @@
     color: yellow;
   }
 }
-
 @keyframes blinking {
   0%, 50%, 100% {
     color: black;
@@ -33,7 +23,6 @@
   -webkit-animation: spinning 1000ms infinite linear;
   animation: spinning 1000ms infinite linear;
 }
-
 @-webkit-keyframes spinning {
   0% {
     transform: rotate(0deg);
@@ -42,7 +31,6 @@
     transform: rotate(359deg);
   }
 }
-
 @keyframes spinning {
   0% {
     transform: rotate(0deg);
@@ -56,7 +44,6 @@
   -webkit-animation: target-highlight 5s 1 linear;
   animation: target-highlight 5s 1 linear;
 }
-
 @keyframes target-highlight {
   0% {
   }
@@ -66,7 +53,6 @@
   100% {
   }
 }
-
 @-webkit-keyframes target-highlight {
   0% {
   }
@@ -75,48 +61,4 @@
   }
   100% {
   }
-}
-
-body {
-  background-color: #dadada;
-}
-
-.messages-wrapper {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 15px;
-}
-
-.messages-wrapper > .message {
-  margin: 0 0 15px 0;
-}
-
-body > .messages-wrapper {
-  width: 30%;
-  min-width: 300px;
-  max-width: 500px;
-}
-
-body > .grid {
-  height: 100%;
-}
-
-body > .grid > .l-logon-tile {
-  width: 500px !important;
-}
-
-.l-notes-wrapper {
-  height: 100%;
-}
-
-.l-notes-wrapper > .segment:target {
-  -webkit-animation: target-highlight 5s 1 linear;
-  animation: target-highlight 5s 1 linear;
-}
-
-.l-notes-wrapper > .segment .description {
-  font-family: "Menlo", monospace;
-  font-weight: bold;
-  color: #E06C75 !important;
 }

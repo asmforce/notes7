@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <div class="ui one column middle aligned center aligned grid">
-    <div class="center-tile column left aligned">
+    <div class="l-logon-tile column left aligned">
         <form:form id="signForm" action="sign" method="POST" data-controller="sign">
             <div class="ui top attached center aligned segment">
                 <div class="ui green header">
