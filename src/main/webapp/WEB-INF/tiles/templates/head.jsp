@@ -7,31 +7,33 @@
 
 <c:choose>
     <c:when test="${useMinLibs}">
-        <c:url var="src" value="/assets/vendor/jquery-2.1.4.min.js"/>
+        <c:url var="src" value="/assets/vendor/jquery-2.2.4.min.js"/>
     </c:when>
     <c:otherwise>
-        <c:url var="src" value="/assets/vendor/jquery-2.1.4.js"/>
+        <c:url var="src" value="/assets/vendor/jquery-2.2.4.js"/>
     </c:otherwise>
 </c:choose>
 <script src="${src}"></script>
 
 <c:choose>
     <c:when test="${useMinLibs}">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.css">
+        <c:url var="src" value="/assets/vendor/semantic.min.css"/>
     </c:when>
     <c:otherwise>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.css">
+        <c:url var="src" value="/assets/vendor/semantic.css"/>
     </c:otherwise>
 </c:choose>
+<link rel="stylesheet" href="${src}">
 
 <c:choose>
     <c:when test="${useMinLibs}">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.js"></script>
+        <c:url var="src" value="/assets/vendor/semantic.min.js"/>
     </c:when>
     <c:otherwise>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.js"></script>
+        <c:url var="src" value="/assets/vendor/semantic.js"/>
     </c:otherwise>
 </c:choose>
+<script src="${src}"></script>
 
 <c:url var="src" value="/assets/vendor/jquery-dateFormat.js"/>
 <script src="${src}"></script>
